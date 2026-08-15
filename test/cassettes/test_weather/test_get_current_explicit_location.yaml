@@ -1,0 +1,40 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.open-meteo.com
+      user-agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://api.open-meteo.com/v1/forecast?latitude=51.5072&longitude=-0.1276&current=temperature_2m&current=relative_humidity_2m&current=apparent_temperature&current=weather_code&current=wind_speed_10m&timezone=auto
+  response:
+    body:
+      string: !!binary |
+        eJx0kEFOwzAQRa+CLLEiTcdxmqbdIsQGdt1baTKlFrEdOXYqqHonzsDJGIdSSoFVov/n/3mePWsr
+        r3xokC1nPJ1xns8T1lrzdBQnkHIB81JAmbAnNOho3hqvNErdsyXZBZRcCEHfHEAsEhZ8Le1m06OX
+        PdbWNDQnCoCExdirNdTL7oKzHU4fyLaGfVuyWq8dDmpcQ3P3j6sbTj62OBw1XqTUVQfn0HgZjPK0
+        YD82UED1tiwgRpTx6IaqJfGLg/ag7uIjgkOZabLe325JdhgPMaDcBq0a5V8+zWuyqq6rxk1n0VNu
+        h5XfopO1jddiO22vxl9ylGlk3yE2kkPsetbTLTucwM+QM8iKCZQTnq94ucxnP9gX4+EuqEUeT/A3
+        dDb/j1mINLtE5r9JOaT54fABAAD//wMAsxKwuw==
+    headers:
+      connection:
+      - keep-alive
+      content-encoding:
+      - deflate
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 14 Aug 2026 17:50:53 GMT
+      transfer-encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,0 +1,44 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.open-meteo.com
+      user-agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://api.open-meteo.com/v1/forecast?latitude=58.3776&longitude=26.729&current=temperature_2m&current=relative_humidity_2m&current=apparent_temperature&current=weather_code&current=wind_speed_10m&daily=weather_code&daily=temperature_2m_max&daily=temperature_2m_min&daily=precipitation_probability_max&daily=sunrise&daily=sunset&forecast_days=7&timezone=auto
+  response:
+    body:
+      string: !!binary |
+        eJyEk99u2yAUxl9lQtrVqAsY/Ce307Sr3eUuipAT0wbNxhbG6boq77Rn2JPtQNoEvGaTLcT5Dgd+
+        fMAL6hqn3dwqtBJVlpeCVxyjbjCPryorsjIXpGYYPSqjLAwfjNO9kv2EViSrK1qRsiRVyQnLORTP
+        bi+Hh4dJOTmp/WBaGEdJRQhGvu7nYGBa9GW2w6ju103XaWPQNSeb3c6qow4LwcCv39afcsirTh1f
+        tbzIYLL9bK0yTs5GO1jiJcwABXoaqoJQKNHGKXtsOhDfSGAd1Y9+G7NVkvWQ+v3rM8hWeSeOSh7m
+        XrfaPZ+THyHVjGMTVopKL3VPqnEHZeV+8G6hp374ELqQ0aaV06hUKynxc33v7w/odAGPkBlhxR2p
+        7ihfM7LiImGvg3MLakay4hZ0SW8xM5qxJTL9m7TMasBsG909/8Pd2ztPYWXf/LjYtUxpc0mNVu31
+        qF04ZDnaYdfsdOc3dZ7AH8U0G6unlAM0uGuR9MZ+pd5EDkPFJRBxUMRBGQdVHNRRwAjaLo3Y5Nh/
+        An7qfy627zuyYTlcY8Yz7huCaQ09aBimVVZiOOH3Kr1hGyqyHNPiPBQa7ht4i7iGW+E72//auREl
+        rjCvMWM4r7FguGDbyODYsjURq5wlxgUp8bIIUuJbGaQ6sdJLnCaGBilPbA1SgbbX0014GF2RBY+X
+        SMoDT0kseLzEUx4vsZTHv8H0mIMEPKfTHwAAAP//AwDQg35B
+    headers:
+      connection:
+      - keep-alive
+      content-encoding:
+      - deflate
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 14 Aug 2026 17:50:53 GMT
+      transfer-encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+version: 1
