@@ -13,11 +13,8 @@ if TYPE_CHECKING:
 
 
 @safe
-def display(path: Path) -> None:
-    """Show the image at `path` on the panel, then put it back to sleep."""
-    logger.info("loading %s", path)
-    image = Image.open(path)
-
-    with EPD() as epd:
+def main(path: Path) -> None:
+    """Show an image on the panel, then put it back to sleep."""
+    with Image.open(path) as img, EPD() as epd:
         logger.info("displaying image")
-        epd.display(epd.getbuffer(image).unwrap())
+        epd.display(epd.getbuffer(img).unwrap())

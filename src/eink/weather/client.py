@@ -1,99 +1,10 @@
 """Client and schemas for the Open-Meteo weather API."""
 
-from datetime import date, datetime
-
 from httpx import AsyncClient
-from pydantic import BaseModel, ConfigDict, Field
 from returns.future import future_safe
 
 from eink.logging import logger
-
-
-class OpenMeteoQuery(BaseModel):
-    """Validated query parameters for the Open-Meteo forecast endpoint."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    latitude: float = Field(ge=-90, le=90)
-    longitude: float = Field(ge=-180, le=180)
-    current: list[str] = Field(min_length=1)
-    daily: list[str] | None = None
-    forecast_days: int | None = Field(default=None, ge=1, le=16)
-    timezone: str = "auto"
-
-
-class CurrentWeatherUnits(BaseModel):
-    """Units returned for current weather values."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    time: str
-    interval: str
-    temperature_2m: str
-    relative_humidity_2m: str
-    apparent_temperature: str
-    weather_code: str
-    wind_speed_10m: str
-
-
-class CurrentWeather(BaseModel):
-    """Current weather conditions for a location."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    time: datetime
-    interval: int
-    temperature_2m: float
-    relative_humidity_2m: float
-    apparent_temperature: float
-    weather_code: int
-    wind_speed_10m: float
-
-
-class DailyForecastUnits(BaseModel):
-    """Units returned for daily forecast values."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    time: str
-    weather_code: str
-    temperature_2m_max: str
-    temperature_2m_min: str
-    precipitation_probability_max: str
-    sunrise: str
-    sunset: str
-
-
-class DailyForecast(BaseModel):
-    """Daily weather forecast for a location."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    time: list[date]
-    weather_code: list[int]
-    temperature_2m_max: list[float]
-    temperature_2m_min: list[float]
-    precipitation_probability_max: list[float | None]
-    sunrise: list[datetime]
-    sunset: list[datetime]
-
-
-class WeatherResponse(BaseModel):
-    """Validated weather response from Open-Meteo."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    latitude: float
-    longitude: float
-    generationtime_ms: float
-    utc_offset_seconds: int
-    timezone: str
-    timezone_abbreviation: str
-    elevation: float
-    current_units: CurrentWeatherUnits
-    current: CurrentWeather
-    daily_units: DailyForecastUnits | None = None
-    daily: DailyForecast | None = None
+from eink.weather.schemas import OpenMeteoQuery, WeatherResponse
 
 
 class OpenMeteoClient:

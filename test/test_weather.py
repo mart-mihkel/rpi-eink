@@ -3,10 +3,13 @@
 from typing import TYPE_CHECKING
 
 import pytest
+from PIL import Image
 from returns.io import IOFailure, IOSuccess
 from returns.result import Failure, Success
 
-from eink.weather import OpenMeteoClient, WeatherResponse
+from eink.weather.client import OpenMeteoClient
+from eink.weather.render import WeatherRenderer
+from eink.weather.schemas import WeatherResponse
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -24,6 +27,18 @@ async def client() -> AsyncIterator[OpenMeteoClient]:
     client = OpenMeteoClient()
     yield client
     await client.close()
+
+
+@pytest.fixture
+async def forecast(client: OpenMeteoClient) -> WeatherResponse:
+    """Fetch a forecast from the cassette recording."""
+    result = await client.get_forecast().awaitable()
+
+    match result:
+        case IOSuccess(Success(weather)):
+            return weather
+        case _:
+            pytest.fail(f"expected success, got {result!r}")
 
 
 @pytest.mark.vcr
@@ -79,6 +94,34 @@ async def test_get_forecast_custom_days(client: OpenMeteoClient) -> None:
             assert len(weather.daily.time) == forecast_days
         case _:
             pytest.fail(f"expected success, got {result!r}")
+
+
+@pytest.mark.vcr
+@pytest.mark.default_cassette("test_get_forecast_default_days")
+async def test_render_svg_uses_the_jinja_template(forecast: WeatherResponse) -> None:
+    """The rendered document contains the cassette data and forecast cards."""
+    renderer = WeatherRenderer()
+    svg = renderer.render_svg(forecast)
+
+    assert "Tartu" in svg
+    assert "7-DAY FORECAST" in svg
+    assert svg.count('class="') == 0
+
+
+@pytest.mark.vcr
+@pytest.mark.default_cassette("test_get_forecast_default_days")
+async def test_render_dashboard_returns_panel_sized_rgb_image(
+    forecast: WeatherResponse,
+) -> None:
+    """CairoSVG rasterizes cassette data to the panel dimensions."""
+    renderer = WeatherRenderer()
+    result = renderer.render(forecast)
+
+    assert isinstance(result, Success)
+    image = result.unwrap()
+    assert image.size == (800, 480)
+    assert image.mode == "RGB"
+    assert isinstance(image, Image.Image)
 
 
 async def test_get_current_invalid_latitude_is_a_failure(

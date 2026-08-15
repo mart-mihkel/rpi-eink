@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <defs>
+    <style>
+      text { font-family: {{ font_family|default('DejaVu Sans, sans-serif') }}; }
+    </style>
+  </defs>
+
+  {% macro sun() -%}
+    <circle cx="42" cy="42" r="27" fill="#dfa352"/>
+    <g stroke="#dfa352" stroke-width="4" stroke-linecap="round">
+      <path d="M42 6v-7M42 85v7M6 42h-7M85 42h7M16 16l-5-5M68 68l5 5M68 16l5-5M16 68l-5 5"/>
+    </g>
+  {%- endmacro %}
+
+  {% macro cloud() -%}
+    <path d="M16 73h69c12 0 19-8 19-18 0-11-8-19-20-19-4-15-15-23-29-23-16 0-28 10-31 26-10 0-18 7-18 17 0 10 6 17 10 17Z" fill="#a9bdc2" stroke="#6f858c" stroke-width="3"/>
+  {%- endmacro %}
+
+  {% macro rain() -%}
+    <path d="M31 80l-8 15m31-15l-8 15m31-15l-8 15" stroke="#607d87" stroke-width="5" stroke-linecap="round"/>
+  {%- endmacro %}
+
+  {% macro snow() -%}
+    <g fill="#607d87">
+      <circle cx="29" cy="91" r="5"/>
+      <circle cx="55" cy="98" r="5"/>
+      <circle cx="80" cy="91" r="5"/>
+    </g>
+  {%- endmacro %}
+
+  {% macro lightning() -%}
+    <path d="M58 76L42 101h15l-5 20 22-30H58Z" fill="#dfa352" stroke="#6f858c" stroke-width="2"/>
+  {%- endmacro %}
+
+  {% macro fog() -%}
+    <g stroke="#6f858c" stroke-width="5" stroke-linecap="round">
+      <path d="M18 45h70M10 62h78M20 79h62"/>
+    </g>
+  {%- endmacro %}
+
+  {% macro icon(kind, x, y, scale) -%}
+    <g transform="translate({{ x }} {{ y }}) scale({{ scale }})">
+      {% if kind == 'clear' %}
+        {{ sun() }}
+      {% elif kind == 'partly-cloudy' %}
+        <g transform="translate(20 -8) scale(.72)">{{ sun() }}</g>{{ cloud() }}
+      {% elif kind == 'cloudy' %}
+        {{ cloud() }}
+      {% elif kind == 'fog' %}
+        {{ fog() }}
+      {% elif kind == 'rain' %}
+        {{ cloud() }}{{ rain() }}
+      {% elif kind == 'snow' %}
+        {{ cloud() }}{{ snow() }}
+      {% else %}
+        {{ cloud() }}{{ lightning() }}
+      {% endif %}
+    </g>
+  {%- endmacro %}
+
+  {% macro metric(x, y, symbol, label, value) -%}
+    <g transform="translate({{ x }} {{ y }})">
+      <circle cx="12" cy="14" r="11" fill="#dbe5e6" stroke="#84999e" stroke-width="1.5"/>
+      {% if symbol == 'sun' %}
+        <circle cx="12" cy="14" r="5" fill="#dfa352"/>
+        <path d="M12 5v-2M12 25v-2M3 14H1M23 14h-2" stroke="#dfa352" stroke-width="2" stroke-linecap="round"/>
+      {% elif symbol == 'wind' %}
+        <path d="M5 11h11c4 0 4-5 1-5-1 0-2 1-2 2M5 16h14c4 0 4 5 1 5-1 0-2-1-2-2" fill="none" stroke="#607d87" stroke-width="2" stroke-linecap="round"/>
+      {% elif symbol == 'drop' %}
+        <path d="M12 6C9 11 7 13 7 17a5 5 0 0 0 10 0c0-4-2-6-5-11Z" fill="#607d87"/>
+      {% elif symbol == 'eye' %}
+        <path d="M4 14s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6Z" fill="none" stroke="#607d87" stroke-width="2"/><circle cx="12" cy="14" r="2.5" fill="#607d87"/>
+      {% else %}
+        <path d="M12 5v18M5 14h14M7 9l10 10M17 9L7 19" stroke="#607d87" stroke-width="2" stroke-linecap="round"/>
+      {% endif %}
+      <text x="32" y="11" font-size="12" fill="#687b80">{{ label }}</text>
+      <text x="32" y="30" font-size="19" font-weight="bold" fill="#263b40">{{ value }}</text>
+    </g>
+  {%- endmacro %}
+
+  {% macro forecast_card(card, index) -%}
+    {% set x = 22 + index * 108 %}
+    <rect x="{{ x }}" y="345" width="100" height="116" rx="7" fill="#edf2f2" stroke="#9aa9ac" stroke-width="1.5"/>
+    <text x="{{ x + 50 }}" y="367" text-anchor="middle" font-size="16" font-weight="bold" fill="#263b40">{{ card.day }}</text>
+    {{ icon(card.kind, x + 18, 372, 0.52) }}
+    <text x="{{ x + 50 }}" y="438" text-anchor="middle" font-size="17" font-weight="bold" fill="#9d4540">{{ card.high }}</text>
+    <text x="{{ x + 50 }}" y="456" text-anchor="middle" font-size="14" fill="#607d87">{{ card.low }} · {{ card.precipitation }}</text>
+  {%- endmacro %}
+
+  <rect width="800" height="480" fill="#edf3f3"/>
+  <rect x="8" y="8" width="784" height="464" rx="2" fill="none" stroke="#87979a" stroke-width="2"/>
+
+  <text x="400" y="43" text-anchor="middle" font-size="29" font-weight="bold" fill="#263b40">{{ location_name }}</text>
+  <text x="400" y="65" text-anchor="middle" font-size="15" fill="#687b80">{{ updated }}</text>
+  <path d="M20 79H780" stroke="#a5b2b4" stroke-width="1"/>
+
+  {{ icon(kind, 48, 96, 1.05) }}
+  <text x="190" y="177" font-size="78" font-weight="bold" fill="#263b40">{{ temperature }}</text>
+  <text x="194" y="205" font-size="16" fill="#687b80">{{ condition }} · Feels like {{ apparent }}</text>
+
+  {{ metric(415, 92, 'sun', 'Sunrise', sunrise) }}
+  {{ metric(605, 92, 'sun', 'Sunset', sunset) }}
+  {{ metric(415, 142, 'wind', 'Wind', wind) }}
+  {{ metric(605, 142, 'drop', 'Humidity', humidity) }}
+  {{ metric(415, 192, 'eye', 'Weather', condition) }}
+  {{ metric(605, 192, 'air', 'Feels like', apparent) }}
+
+  <path d="M24 285 C70 274 94 284 130 280 S194 266 230 276 S296 293 338 280 S405 267 447 275 S514 291 555 279 S624 264 668 274 S728 291 776 278" fill="none" stroke="#bd8272" stroke-width="2"/>
+  <path d="M24 286H776" stroke="#a5b2b4" stroke-width="1"/>
+  <text x="24" y="307" font-size="12" fill="#687b80">8 AM</text>
+  <text x="148" y="307" font-size="12" fill="#687b80">12 PM</text>
+  <text x="274" y="307" font-size="12" fill="#687b80">4 PM</text>
+  <text x="400" y="307" font-size="12" fill="#687b80">8 PM</text>
+  <text x="526" y="307" font-size="12" fill="#687b80">12 AM</text>
+  <text x="652" y="307" font-size="12" fill="#687b80">4 AM</text>
+  <text x="744" y="307" text-anchor="end" font-size="12" fill="#687b80">8 AM</text>
+
+  <text x="22" y="333" font-size="16" font-weight="bold" fill="#263b40">7-DAY FORECAST</text>
+  {% if forecast %}
+    {% for card in forecast %}
+      {{ forecast_card(card, loop.index0) }}
+    {% endfor %}
+  {% else %}
+    <text x="22" y="400" font-size="20" fill="#687b80">Forecast unavailable</text>
+  {% endif %}
+</svg>

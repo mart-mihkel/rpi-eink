@@ -6,10 +6,9 @@ from typing import get_args
 
 from click import Choice, argument, group, option
 from click import Path as ClickPath
-from returns.io import IOFailure
-from returns.result import Failure
 
-from eink.logging import logger, setup_logging
+from eink.constants import DATA
+from eink.logging import setup_logging
 from eink.types import LogLevel
 
 log_level_opt = option(
@@ -27,16 +26,33 @@ def app() -> None:
     """Run the eInk dashboard command-line application."""
 
 
-@app.command(help="Fetch OpenMeteo data")
+@app.command(help="Fetch weather data and render the dashboard image")
+@option(
+    "--output",
+    "-o",
+    type=ClickPath(dir_okay=False, path_type=Path),
+    default=DATA / "render.png",
+    show_default=True,
+    help="Output image path",
+)
 @log_level_opt
-def fetch(log_level: LogLevel) -> None:
-    """Fetch OpenMeteo data."""
-    from eink.scripts.fetch import main  # noqa: PLC0415
+def render(output: Path, log_level: LogLevel) -> None:
+    """Fetch the forecast and render it as a dashboard image."""
+    from eink.scripts.render import main  # noqa: PLC0415
 
     setup_logging(log_level)
-    match asyncio.run(main()):
-        case IOFailure(Failure(err)):
-            logger.error(err)
+    asyncio.run(main(output)).unwrap()
+
+
+@app.command(help="Fetch, render, convert, and display the weather dashboard")
+@option("--dither/--no-dither", default=True, help="Use Floyd-Steinberg dithering")
+@log_level_opt
+def update(*, log_level: LogLevel, dither: bool) -> None:
+    """Fetch weather, render it, convert it, and show it on the panel."""
+    from eink.scripts.update import main  # noqa: PLC0415
+
+    setup_logging(log_level)
+    asyncio.run(main(dither=dither)).unwrap()
 
 
 @app.command(help="Run the vendored WaveShare e-Paper display demo")
@@ -46,9 +62,7 @@ def demo(log_level: LogLevel) -> None:
     from eink.scripts.demo import main  # noqa: PLC0415
 
     setup_logging(log_level)
-    match main():
-        case Failure(err):
-            logger.error(err)
+    main().unwrap()
 
 
 @app.command(help="Convert an image into a panel-ready BMP")
@@ -64,14 +78,12 @@ def convert(
     dither: bool,
 ) -> None:
     """Fit and quantize."""
-    from eink.scripts.convert import convert as convert_image  # noqa: PLC0415
+    from eink.scripts.convert import main  # noqa: PLC0415
 
-    setup_logging(log_level)
     _dest = dest if dest is not None else src.with_suffix(".bmp")
 
-    match convert_image(src, _dest, dither=dither):
-        case Failure(err):
-            logger.error(err)
+    setup_logging(log_level)
+    main(src, dest, dither=dither).unwrap()
 
 
 @app.command(help="Display an image on the e-Paper panel")
@@ -79,12 +91,10 @@ def convert(
 @log_level_opt
 def display(path: Path, *, log_level: LogLevel) -> None:
     """Show PATH on the panel, then put it back to sleep."""
-    from eink.scripts.display import display as display_image  # noqa: PLC0415
+    from eink.scripts.display import main  # noqa: PLC0415
 
     setup_logging(log_level)
-    match display_image(path):
-        case Failure(err):
-            logger.error(err)
+    main(path).unwrap()
 
 
 if __name__ == "__main__":
