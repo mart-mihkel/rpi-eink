@@ -7,9 +7,12 @@ requires-python = "~=3.14.5"
 dependencies = [
     "pydantic~=2.13.4",
     "returns~=0.29.0",
+    "gpiozero~=2.0.1",
+    "pillow~=12.3.0",
     "httpx~=0.28.1",
     "click~=8.4.2",
     "rich~=15.0.0",
+    "spidev~=3.8",
 ]
 
 [dependency-groups]
@@ -43,13 +46,18 @@ ignore = [
 "{test}/**" = [
     "FBT003",   # Boolean positional value in function call
     "S101",     # Use of assert detected
+    "SLF001",   # Private member accessed
 ]
 
 [tool.ruff.lint.flake8-type-checking]
 runtime-evaluated-base-classes = ["pydantic.BaseModel"]
 
+[tool.ty.environment]
+extra-paths = ["stubs"]
+
 [tool.pytest.ini_options]
 anyio_mode = "auto"
+testpaths = ["test"]
 filterwarnings = [
     "error::DeprecationWarning",
     "error::FutureWarning",
