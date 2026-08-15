@@ -1,4 +1,5 @@
 """WaveShare vendored demo."""
+
 import time
 from enum import IntEnum
 
@@ -27,9 +28,10 @@ def main() -> None:
     with EPD() as epd:
         epd.clear()
 
-        font24 = ImageFont.truetype(str(DATA / "Font.ttc"), 24)
-        font18 = ImageFont.truetype(str(DATA / "Font.ttc"), 18)
-        font40 = ImageFont.truetype(str(DATA / "Font.ttc"), 40)
+        logger.debug("loading fonts from %s", DATA / "font.ttc")
+        font24 = ImageFont.truetype(str(DATA / "font.ttc"), 24)
+        font18 = ImageFont.truetype(str(DATA / "font.ttc"), 18)
+        font40 = ImageFont.truetype(str(DATA / "font.ttc"), 40)
 
         logger.info("drawing on the image")
         h_image = Image.new("RGB", (epd.width, epd.height), _Colors.WHITE)
@@ -50,7 +52,8 @@ def main() -> None:
         time.sleep(3)
 
         logger.info("read bmp file")
-        bmp_image = Image.open(DATA / "7in3e.bmp")
+        bmp_image = Image.open(DATA / "moomin.bmp")
+        logger.debug("bmp image size=%s mode=%s", bmp_image.size, bmp_image.mode)
         epd.display(epd.getbuffer(bmp_image).unwrap())
         time.sleep(3)
 

@@ -28,26 +28,31 @@ class Pin(IntEnum):
 
 @cache
 def _spi() -> spidev.SpiDev:
+    logger.debug("creating spidev handle")
     return spidev.SpiDev()
 
 
 @cache
 def _rst_pin() -> gpiozero.LED:
+    logger.debug("claiming reset pin %s", Pin.RST_PIN)
     return gpiozero.LED(Pin.RST_PIN)
 
 
 @cache
 def _dc_pin() -> gpiozero.LED:
+    logger.debug("claiming data/command pin %s", Pin.DC_PIN)
     return gpiozero.LED(Pin.DC_PIN)
 
 
 @cache
 def _pwr_pin() -> gpiozero.LED:
+    logger.debug("claiming power pin %s", Pin.PWR_PIN)
     return gpiozero.LED(Pin.PWR_PIN)
 
 
 @cache
 def _busy_pin() -> gpiozero.Button:
+    logger.debug("claiming busy pin %s", Pin.BUSY_PIN)
     return gpiozero.Button(Pin.BUSY_PIN, pull_up=False)
 
 
@@ -97,12 +102,16 @@ def spi_writebytes(data: list[int]) -> None:
 
 def module_init() -> int:
     """Power on the display and open the SPI bus."""
+    logger.debug("powering on")
     _pwr_pin().on()
 
+    logger.debug("opening spi bus=0 device=0")
     spi = _spi()
     spi.open(0, 0)
     spi.max_speed_hz = 4_000_000
     spi.mode = 0b00
+    logger.debug("spi max_speed_hz=%s mode=%s", spi.max_speed_hz, spi.mode)
+
     return 0
 
 

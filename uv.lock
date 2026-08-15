@@ -84,6 +84,11 @@ dependencies = [
     { name = "spidev" },
 ]
 
+[package.optional-dependencies]
+rpi = [
+    { name = "lgpio" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "pytest" },
@@ -97,12 +102,14 @@ requires-dist = [
     { name = "click", specifier = "~=8.4.2" },
     { name = "gpiozero", specifier = "~=2.0.1" },
     { name = "httpx", specifier = "~=0.28.1" },
+    { name = "lgpio", marker = "extra == 'rpi'", specifier = "~=0.2.2.0" },
     { name = "pillow", specifier = "~=12.3.0" },
     { name = "pydantic", specifier = "~=2.13.4" },
     { name = "returns", specifier = "~=0.29.0" },
     { name = "rich", specifier = "~=15.0.0" },
     { name = "spidev", specifier = "~=3.8" },
 ]
+provides-extras = ["rpi"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -178,6 +185,12 @@ sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
 ]
+
+[[package]]
+name = "lgpio"
+version = "0.2.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/56/33/26ec2e8049eaa2f077bf23a12dc61ca559fbfa7bea0516bf263d657ae275/lgpio-0.2.2.0.tar.gz", hash = "sha256:11372e653b200f76a0b3ef8a23a0735c85ec678a9f8550b9893151ed0f863fff", size = 90087, upload-time = "2024-03-29T21:59:55.901Z" }
 
 [[package]]
 name = "markdown-it-py"

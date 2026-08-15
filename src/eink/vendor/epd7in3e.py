@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import Self
 
 from PIL import Image
-from returns.result import safe
+from returns.result import Failure, Result, Success
 
 from eink.logging import logger
 from eink.vendor.epdconfig import (
@@ -20,18 +20,7 @@ from eink.vendor.epdconfig import (
 
 
 class Command(IntEnum):
-    """
-    Panel command opcodes.
-
-    Section 6 ("Command Table") of the Waveshare user manual documents only
-    five opcodes: Power OFF, Power ON, Deep Sleep, Data Start transmission,
-    and Data Refresh — those five are named here to match. The manual does
-    not document the panel's internal register bring-up sequence, so the
-    other opcodes sent via `_init_sequence` keep a `CMD_<hex>` placeholder
-    name; their real meaning is proprietary to the driver IC.
-
-    https://files.waveshare.com/wiki/7.3inch-e-Paper-HAT-(E)/7.3inch-e-Paper-(E)-user-manual.pdf
-    """
+    """Panel command opcodes."""
 
     CMD_00 = 0x00
     CMD_01 = 0x01
@@ -53,7 +42,6 @@ class Command(IntEnum):
     CMD_E3 = 0xE3
 
 
-# (command, [data, ...]) pairs sent to bring up the panel's internal registers.
 _init_sequence: list[tuple[Command, list[int]]] = [
     (Command.CMD_AA, [0x49, 0x55, 0x20, 0x08, 0x09, 0x18]),
     (Command.CMD_01, [0x3F]),
@@ -82,6 +70,16 @@ class EPD:
         self.cs_pin = Pin.CS_PIN
         self.width = 800
         self.height = 480
+
+        logger.debug(
+            "bound reset=%s dc=%s busy=%s cs=%s resolution=%sx%s",
+            self.reset_pin,
+            self.dc_pin,
+            self.busy_pin,
+            self.cs_pin,
+            self.width,
+            self.height,
+        )
 
     def __enter__(self) -> Self:
         """Initialize the panel; it must not stay powered on without sleeping."""
@@ -139,13 +137,16 @@ class EPD:
 
     def turn_on_display(self) -> None:
         """Power the panel, refresh the display, then power it down."""
+        logger.debug("powering on the panel")
         self.send_command(Command.POWER_ON)
         self.read_busy_h()
 
+        logger.debug("refreshing the display")
         self.send_command(Command.DATA_REFRESH)
         self.send_data(0x00)
         self.read_busy_h()
 
+        logger.debug("powering off the panel")
         self.send_command(Command.POWER_OFF)
         self.send_data(0x00)
         self.read_busy_h()
@@ -159,6 +160,7 @@ class EPD:
         self.read_busy_h()
         delay_ms(30)
 
+        logger.debug("sending %s panel register bring-up commands", len(_init_sequence))
         for command, data in _init_sequence:
             self.send_command(command)
             for value in data:
@@ -166,12 +168,11 @@ class EPD:
 
         self.send_command(Command.POWER_ON)
         self.read_busy_h()
+
         return 0
 
-    @safe
-    def getbuffer(self, image: Image.Image) -> list[int]:
+    def getbuffer(self, image: Image.Image) -> Result[list[int], str]:
         """Convert an image to the panel's packed 4-bit-per-pixel buffer format."""
-        # Palette with the 7 colors supported by the panel, padded to 256 entries.
         pal_image = Image.new("P", (1, 1))
         pal_image.putpalette(
             (
@@ -182,35 +183,45 @@ class EPD:
                 255,
                 255,
                 255,
+                243,
+                56,
+                191,
+                0,
+                0,
+                0,
+                0,
+                0,
+                100,
+                64,
                 255,
-                0,
-                255,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                255,
-                0,
-                255,
-                0,
+                67,
+                138,
+                28,
             )
             + (0, 0, 0) * 249,
         )
 
         imwidth, imheight = image.size
+        logger.debug(
+            "got %sx%s image, panel is %sx%s",
+            imwidth,
+            imheight,
+            self.width,
+            self.height,
+        )
+
         if imwidth == self.width and imheight == self.height:
             image_temp = image
         elif imwidth == self.height and imheight == self.width:
+            logger.debug("rotating image 90 degrees to match panel orientation")
             image_temp = image.rotate(90, expand=True)
         else:
             msg = (
                 f"invalid image dimensions {imwidth}x{imheight}, "
                 f"expected {self.width}x{self.height} or {self.height}x{self.width}"
             )
-            raise ValueError(msg)
+
+            return Failure(msg)
 
         # Convert the source image to the 7 colors, dithering if needed.
         image_7color = image_temp.convert("RGB").quantize(palette=pal_image)
@@ -222,22 +233,25 @@ class EPD:
         for idx, i in enumerate(range(0, len(buf_7color), 2)):
             buf[idx] = (buf_7color[i] << 4) + buf_7color[i + 1]
 
-        return buf
+        return Success(buf)
 
     def display(self, image: list[int]) -> None:
         """Push a buffer produced by `getbuffer` to the panel."""
+        logger.debug("sending %s byte image buffer", len(image))
         self.send_command(Command.DATA_START_TRANSMISSION)
         self.send_datas(image)
         self.turn_on_display()
 
     def clear(self, color: int = 0x11) -> None:
         """Fill the panel with a single color."""
+        logger.debug("clearing to color byte 0x%02x", color)
         self.send_command(Command.DATA_START_TRANSMISSION)
         self.send_datas([color] * (self.height * self.width // 2))
         self.turn_on_display()
 
     def sleep(self) -> None:
         """Put the panel into deep sleep and release the SPI/GPIO resources."""
+        logger.debug("entering deep sleep")
         self.send_command(Command.DEEP_SLEEP)
         self.send_data(0xA5)
 

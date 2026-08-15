@@ -7,9 +7,11 @@ set dotenv-load
     just --list
 
 [doc('create or sync virtualenv')]
+[arg('rpi', long, short, pattern='true|false', value='true', help='dry run')]
 [group('build')]
-sync:
-    uv sync --compile-bytecode
+sync rpi='false':
+    uv sync --compile-bytecode \
+        {{ if rpi == 'true' { '--extra rpi' } else { '' } }}
 
 [arg('host', long, short, help='remote host and target dir')]
 [arg('commit', long, short, pattern='true|false', value='true', help='no dry run')]

@@ -45,7 +45,7 @@ def test_getbuffer_rejects_mismatched_dimensions() -> None:
     result = epd.getbuffer(image)
 
     assert isinstance(result, Failure)
-    assert isinstance(result.failure(), ValueError)
+    assert isinstance(result.failure(), str)
     assert "invalid image dimensions" in str(result.failure())
 
 
