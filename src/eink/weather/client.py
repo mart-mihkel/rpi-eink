@@ -22,6 +22,11 @@ class OpenMeteoClient:
         "wind_speed_10m",
     )
 
+    _hourly_vars: tuple[str, ...] = (
+        "temperature_2m",
+        "precipitation_probability",
+    )
+
     _daily_vars: tuple[str, ...] = (
         "weather_code",
         "temperature_2m_max",
@@ -96,6 +101,7 @@ class OpenMeteoClient:
             latitude=latitude,
             longitude=longitude,
             current=list(self._current_vars),
+            hourly=list(self._hourly_vars),
             daily=list(self._daily_vars),
             forecast_days=forecast_days,
         )

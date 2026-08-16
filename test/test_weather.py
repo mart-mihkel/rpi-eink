@@ -110,6 +110,21 @@ async def test_render_svg_uses_the_jinja_template(forecast: WeatherResponse) -> 
 
 @pytest.mark.vcr
 @pytest.mark.default_cassette("test_get_forecast_default_days")
+async def test_render_svg_charts_the_hourly_forecast(forecast: WeatherResponse) -> None:
+    """The chart plots a full day of hourly values starting at the current hour."""
+    chart_hours = 24
+    renderer = WeatherRenderer()
+    svg = renderer.render_svg(forecast)
+    vertices = svg.split('points="')[1].split('"')[0].split()
+
+    assert forecast.hourly is not None
+    assert len(vertices) == chart_hours
+    assert forecast.current.time.strftime("%H:00") in svg
+    assert "unavailable" not in svg
+
+
+@pytest.mark.vcr
+@pytest.mark.default_cassette("test_get_forecast_default_days")
 async def test_render_dashboard_returns_panel_sized_rgb_image(
     forecast: WeatherResponse,
 ) -> None:

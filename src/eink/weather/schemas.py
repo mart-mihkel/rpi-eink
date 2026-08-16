@@ -58,6 +58,7 @@ class OpenMeteoQuery(BaseModel):
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
     current: list[str] = Field(min_length=1)
+    hourly: list[str] | None = None
     daily: list[str] | None = None
     forecast_days: int | None = Field(default=None, ge=1, le=16)
     timezone: str = "auto"
@@ -89,6 +90,26 @@ class CurrentWeather(BaseModel):
     apparent_temperature: float
     weather_code: WeatherCode
     wind_speed_10m: float
+
+
+class HourlyForecastUnits(BaseModel):
+    """Units returned for hourly forecast values."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    time: str
+    temperature_2m: str
+    precipitation_probability: str
+
+
+class HourlyForecast(BaseModel):
+    """Hourly weather forecast for a location."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    time: list[datetime]
+    temperature_2m: list[float]
+    precipitation_probability: list[float | None]
 
 
 class DailyForecastUnits(BaseModel):
@@ -133,6 +154,8 @@ class WeatherResponse(BaseModel):
     elevation: float
     current_units: CurrentWeatherUnits
     current: CurrentWeather
+    hourly_units: HourlyForecastUnits | None = None
+    hourly: HourlyForecast | None = None
     daily_units: DailyForecastUnits | None = None
     daily: DailyForecast | None = None
 
@@ -145,6 +168,40 @@ class ForecastContext(BaseModel):
     high: str
     low: str
     precipitation: str
+
+
+class ChartPoint(BaseModel):
+    """One vertex of the hourly temperature line."""
+
+    x: float
+    y: float
+
+
+class ChartBar(BaseModel):
+    """One precipitation-probability bar of the hourly chart."""
+
+    x: float
+    y: float
+    width: float
+    height: float
+
+
+class ChartLabel(BaseModel):
+    """A positioned text label of the hourly chart."""
+
+    x: float
+    y: float
+    text: str
+
+
+class HourlyContext(BaseModel):
+    """Chart geometry rendered for the next hours of the forecast."""
+
+    temperature: list[ChartPoint]
+    precipitation: list[ChartBar]
+    temperature_labels: list[ChartLabel]
+    precipitation_labels: list[ChartLabel]
+    hours: list[ChartLabel]
 
 
 class RenderContext(BaseModel):
@@ -160,4 +217,5 @@ class RenderContext(BaseModel):
     wind: str
     sunrise: str
     sunset: str
+    hourly: HourlyContext | None
     forecast: list[ForecastContext]

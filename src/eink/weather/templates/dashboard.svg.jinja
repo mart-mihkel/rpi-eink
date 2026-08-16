@@ -105,15 +105,25 @@
   {{ metric(415, 192, 'eye', 'Weather', condition) }}
   {{ metric(605, 192, 'air', 'Feels like', apparent) }}
 
-  <path d="M24 285 C70 274 94 284 130 280 S194 266 230 276 S296 293 338 280 S405 267 447 275 S514 291 555 279 S624 264 668 274 S728 291 776 278" fill="none" stroke="#bd8272" stroke-width="2"/>
-  <path d="M24 286H776" stroke="#a5b2b4" stroke-width="1"/>
-  <text x="24" y="307" font-size="12" fill="#687b80">8 AM</text>
-  <text x="148" y="307" font-size="12" fill="#687b80">12 PM</text>
-  <text x="274" y="307" font-size="12" fill="#687b80">4 PM</text>
-  <text x="400" y="307" font-size="12" fill="#687b80">8 PM</text>
-  <text x="526" y="307" font-size="12" fill="#687b80">12 AM</text>
-  <text x="652" y="307" font-size="12" fill="#687b80">4 AM</text>
-  <text x="744" y="307" text-anchor="end" font-size="12" fill="#687b80">8 AM</text>
+  {% if hourly %}
+    {% for bar in hourly.precipitation %}
+      <rect x="{{ bar.x }}" y="{{ bar.y }}" width="{{ bar.width }}" height="{{ bar.height }}" rx="2" fill="#c2d3d7"/>
+    {% endfor %}
+    <path d="M24 286H776" stroke="#a5b2b4" stroke-width="1"/>
+    <polyline points="{% for point in hourly.temperature %}{{ point.x }},{{ point.y }} {% endfor %}" fill="none" stroke="#bd8272" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    {% for label in hourly.precipitation_labels %}
+      <text x="{{ label.x }}" y="{{ label.y }}" text-anchor="middle" font-size="12" fill="#4f6d77">{{ label.text }}</text>
+    {% endfor %}
+    {% for label in hourly.temperature_labels %}
+      <text x="{{ label.x }}" y="{{ label.y }}" text-anchor="middle" font-size="12" font-weight="bold" fill="#9d4540">{{ label.text }}</text>
+    {% endfor %}
+    {% for label in hourly.hours %}
+      <text x="{{ label.x }}" y="{{ label.y }}" text-anchor="middle" font-size="12" fill="#687b80">{{ label.text }}</text>
+    {% endfor %}
+  {% else %}
+    <path d="M24 286H776" stroke="#a5b2b4" stroke-width="1"/>
+    <text x="24" y="307" font-size="12" fill="#687b80">Hourly forecast unavailable</text>
+  {% endif %}
 
   <text x="22" y="333" font-size="16" font-weight="bold" fill="#263b40">7-DAY FORECAST</text>
   {% if forecast %}

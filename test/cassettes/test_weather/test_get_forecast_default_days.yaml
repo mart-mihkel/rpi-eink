@@ -13,20 +13,36 @@ interactions:
       user-agent:
       - python-httpx/0.28.1
     method: GET
-    uri: https://api.open-meteo.com/v1/forecast?latitude=58.3776&longitude=26.729&current=temperature_2m&current=relative_humidity_2m&current=apparent_temperature&current=weather_code&current=wind_speed_10m&daily=weather_code&daily=temperature_2m_max&daily=temperature_2m_min&daily=precipitation_probability_max&daily=sunrise&daily=sunset&forecast_days=7&timezone=auto
+    uri: https://api.open-meteo.com/v1/forecast?latitude=58.3776&longitude=26.729&current=temperature_2m&current=relative_humidity_2m&current=apparent_temperature&current=weather_code&current=wind_speed_10m&hourly=temperature_2m&hourly=precipitation_probability&daily=weather_code&daily=temperature_2m_max&daily=temperature_2m_min&daily=precipitation_probability_max&daily=sunrise&daily=sunset&forecast_days=7&timezone=auto
   response:
     body:
       string: !!binary |
-        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
+        eJx80btu20AQheFXCQikii1zVxJnxm0QpErnLgVBSWuLCG+gSBmOkXfKM+TJspQdX/jb6YSznN2j
+        +e6TqhjKYdyF5HKti6WsV7o6S6q2uXlMfbaQ5To1f5bchCb08fO2Gco65PUhuUwXK7OVZuaX3onI
+        chWnx2Gbt9fXhzDkh7Btm1380KWapmfJNPizbeK9yZexb7twcVVUVdk0yfNZXmw2fTiWp5fih1+/
+        XX1axvNQheNjtswW8bLt2PehGfKxKYf4xP3phjhQHlrNUhdHymYI/bGoYvivSXwn1N30P8Y+5L6O
+        R39+f45xH6ZVHEO+H+tyVw53D4cf41HRdcXppRejT3O3oRj2oc+37bSu5LZuP5x+xpOy2eWHLoRd
+        7tLprh/1xT759VT8RWWf+uw81XOXXaVymaavuttpc7PWTqcVvF06k/c6O5mmXlf2bOrcwsee+3bs
+        q7v/7PedVXZ92JZdOZy08q5vN8WmrGK70z6fLn6+8vurBaQPC3gZOUae0ZLRitGaUcZIGCkjQ+TY
+        3rG9Y3vH9o7tHds7tnds79jesb1ne8/2nu39vL3QUegodBQ6Ch2FjkJHoaPQUegodBQ6Ch2FjkJH
+        oaPQUegodBQ6Ch2FjkJHoaPSUemodFQ6Kh2VjkpHpaPSUemodFQ6Kh2VjkpHpaPSUemodFQ6Kh2V
+        jkpHpaPR0ehodDQ6Gh2NjkZHo6PR0ehodDQ6Gh2NjkZHo6PR0ehodDQ6Gh2NjkZHg6NP4ThFjpFn
+        9MZdK0ZrRhkjYaSMDNHccYrYfu44RWw/d5witp87ThHbzx2niO3njlPE9nPHKZq3d3R0dHR0dHR0
+        dHR0dHR0j45/AQAA//+EWMtu3DAM/JecicCk3v2VxaII0B5yaA5NC/SSfy+HooXVMg9YS0hcekhx
+        aMvSrrrPBEceOfLIkUeOPHLkkSOPHHnkyCNHHjnyyJFHjjxy5JEjjxx5lMijRB4l8iiRR4k8SuRR
+        Io8SeZTIo0QeJfIokUeJPErkUSKPEnmUyKNEHiXyKJFHiTxK5FEij+I8XuMW5qIbq0Yq8hI2TEsU
+        sr0XDxVyPApEJ2GIDF1RE902F/QqdJkkoScKpXYNdzQAGFR1vIZexR8VfrHF5YJhwbDAeZkmxY37
+        RDHnDPgDIq2eQLD3eEZacIfNQ4DCwDuRC3QZoBm99DgguvfyNOl+m2UDU1DQvIRAV5eP4Uls8OuT
+        4eUjQ7ALd6Q6QU9m7xymaWzTt8D7YqatbLC7BDNzghXDMr1VoBTgVQg1ZvxrAhli0KMm7N7M+Hbm
+        ZeW+w4el0+pgzOE51eZ+LVJPLDsKCmSbpYWRIRKGyU2c6eHTcm9G4wFRIYYzbcNjFWubvb4KmD3m
+        NqNPi/ixCq4uUVbvnEeb1cneq4Byu2OvnLGorddPjwEuByGHJI2SUMqUtGrhVHOgU8EwDUoKr1VF
+        xwcXU6Lsl96vVwEssLUs9e9bU7GLt5srjBlPIYJB6xZDgn4oTCdUCIKCLltLpoGTRmaugSNejUAn
+        lA2DFbroVafNYQjZsEEazLxpAjRaoarRVGuJimoOygxABkjWX/drnHAoAX3FAEK6+V6tmb4ggakC
+        SBvy2awNyooulDV7hbIaNMqd8oDXwlQylUZlUNVpCCSGx/WNHn48PX96IPTxYdj+nv3+6+nfOi66
+        /+v55euTJAfA6dzr35ffz697HKp7/fnnRnXG/v6Z07YH3jZS29f49km3fRdsiwuWlT0RFy0PvTS3
+        3TLcOaw8c0KXuW7YS9weaF9kjvmk41l+504k7DIXEVsm0nqB+hsufflIuvs0q2ugmrUWtXiqXG9S
+        vB/UlW9py5YdyqSxJRCqzFsaTZXCriPXLaWm6g/330LFVu2T3y0e/Rgod/FAlcOWukjYneWdXFPd
+        xQNVDp8fOrfr29t/AAAA//8DAAORGhQ=
     headers:
       connection:
       - keep-alive
@@ -35,7 +51,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Fri, 14 Aug 2026 17:50:53 GMT
+      - Sun, 16 Aug 2026 04:02:54 GMT
       transfer-encoding:
       - chunked
     status:
