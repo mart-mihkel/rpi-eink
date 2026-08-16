@@ -3,7 +3,7 @@ name: ci
 on:
   push:
     branches:
-      - master
+      - main
 
   pull_request:
     branches:
@@ -29,4 +29,5 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
+      - run: uv sync --frozen
       - run: uv run --no-sync pytest
