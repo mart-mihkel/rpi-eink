@@ -12,22 +12,25 @@ dependencies = [
     "pillow~=12.3.0",
     "jinja2~=3.1.6",
     "httpx~=0.28.1",
+    "typer~=0.27.2",
     "click~=8.4.2",
+    "typer~=0.27.2",
     "rich~=15.0.0",
-    "spidev~=3.8",
 ]
 
 [dependency-groups]
 dev = [
     "pytest-recording",
     "pytest",
+    "prek",
     "ruff",
     "ty",
 ]
 
 [project.optional-dependencies]
 rpi = [
-    "lgpio~=0.2.2.0",
+    "lgpio~=0.2.2.0; sys_platform == 'linux'",
+    "spidev~=3.8; sys_platform == 'linux'",
 ]
 
 [project.scripts]
@@ -51,9 +54,10 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "{test}/**" = [
+    "D103",     # Missing docstring in public function
     "FBT003",   # Boolean positional value in function call
     "S101",     # Use of assert detected
-    "SLF001",   # Private member accessed
+    "SLF001",   # Private member access in white-box tests
 ]
 
 [tool.ruff.lint.flake8-type-checking]
@@ -64,7 +68,6 @@ extra-paths = ["stubs"]
 
 [tool.pytest.ini_options]
 anyio_mode = "auto"
-testpaths = ["test"]
 filterwarnings = [
     "error::DeprecationWarning",
     "error::FutureWarning",

@@ -2,4 +2,5 @@
 
 from typing import Literal
 
-type LogLevel = Literal["debug", "info", "warning", "error"]
+LogLevel = Literal["debug", "info", "warning", "error"]
+"""Valid log levels, also used as CLI choices."""

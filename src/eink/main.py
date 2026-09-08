@@ -1,42 +1,41 @@
 """Command-line entry point for the eInk dashboard."""
 
 import asyncio
-from pathlib import Path
-from typing import get_args
+from pathlib import Path  # noqa: TC003 - typer resolves annotations at runtime
+from typing import Annotated
 
-from click import Choice, argument, group, option
-from click import Path as ClickPath
+import typer
 
 from eink.constants import DATA
-from eink.logging import setup_logging
+from eink.logging import logger, setup_logging
 from eink.types import LogLevel
 
-log_level_opt = option(
-    "--log-level",
-    "-l",
-    type=Choice(get_args(LogLevel.__value__)),
-    default="info",
-    show_default=True,
-    help="Log level",
+app = typer.Typer(
+    help="Run the eInk dashboard command-line application.",
+    add_completion=False,
+    no_args_is_help=True,
+    context_settings={"help_option_names": ["-h", "--help"]},
 )
 
-
-@group(context_settings={"help_option_names": ["-h", "--help"]})
-def app() -> None:
-    """Run the eInk dashboard command-line application."""
+LogLevelOption = Annotated[
+    LogLevel,
+    typer.Option("--log-level", "-l", help="Log level"),
+]
+DitherOption = Annotated[
+    bool,
+    typer.Option(help="Use Floyd-Steinberg dithering"),
+]
 
 
 @app.command(help="Fetch weather data and render the dashboard image")
-@option(
-    "--output",
-    "-o",
-    type=ClickPath(dir_okay=False, path_type=Path),
-    default=DATA / "render.png",
-    show_default=True,
-    help="Output image path",
-)
-@log_level_opt
-def render(output: Path, log_level: LogLevel) -> None:
+def render(
+    *,
+    output: Annotated[
+        Path,
+        typer.Option("--output", "-o", dir_okay=False, help="Output image path"),
+    ] = DATA / "render.png",
+    log_level: LogLevelOption = "info",
+) -> None:
     """Fetch the forecast and render it as a dashboard image."""
     from eink.scripts.render import main  # noqa: PLC0415
 
@@ -45,9 +44,11 @@ def render(output: Path, log_level: LogLevel) -> None:
 
 
 @app.command(help="Fetch, render, convert, and display the weather dashboard")
-@option("--dither/--no-dither", default=True, help="Use Floyd-Steinberg dithering")
-@log_level_opt
-def update(*, log_level: LogLevel, dither: bool) -> None:
+def update(
+    *,
+    dither: DitherOption = True,
+    log_level: LogLevelOption = "info",
+) -> None:
     """Fetch weather, render it, convert it, and show it on the panel."""
     from eink.scripts.update import main  # noqa: PLC0415
 
@@ -55,9 +56,49 @@ def update(*, log_level: LogLevel, dither: bool) -> None:
     asyncio.run(main(dither=dither)).unwrap()
 
 
+@app.command(help="Run the dashboard update hourly, waiting out network outages")
+def daemon(
+    *,
+    interval: Annotated[
+        float,
+        typer.Option("--interval", "-i", help="Seconds between successful updates"),
+    ] = 3600.0,
+    retry_interval: Annotated[
+        float,
+        typer.Option(
+            "--retry-interval",
+            "-r",
+            help="Seconds between attempts while offline",
+        ),
+    ] = 60.0,
+    dither: DitherOption = True,
+    log_level: LogLevelOption = "info",
+) -> None:
+    """Update hourly; on network errors retry until reconnected, then resume."""
+    from eink.scripts.daemon import DaemonConfig  # noqa: PLC0415
+    from eink.scripts.daemon import main as daemon_main  # noqa: PLC0415
+
+    if interval <= 0:
+        msg = "interval must be positive"
+        raise typer.BadParameter(msg)
+    if retry_interval <= 0:
+        msg = "retry_interval must be positive"
+        raise typer.BadParameter(msg)
+
+    setup_logging(log_level)
+    config = DaemonConfig(
+        interval=interval,
+        retry_interval=retry_interval,
+        dither=dither,
+    )
+    try:
+        asyncio.run(daemon_main(config))
+    except KeyboardInterrupt:
+        logger.info("update daemon stopped")
+
+
 @app.command(help="Run the vendored WaveShare e-Paper display demo")
-@log_level_opt
-def demo(log_level: LogLevel) -> None:
+def demo(log_level: LogLevelOption = "info") -> None:
     """Run the e-Paper display demo, logging any hardware failure."""
     from eink.scripts.demo import main  # noqa: PLC0415
 
@@ -66,30 +107,35 @@ def demo(log_level: LogLevel) -> None:
 
 
 @app.command(help="Convert an image into a panel-ready BMP")
-@argument("src", type=ClickPath(exists=True, dir_okay=False, path_type=Path))
-@argument("dest", type=ClickPath(dir_okay=False, path_type=Path), required=False)
-@option("--dither/--no-dither", default=True, help="Use Floyd-Steinberg dithering")
-@log_level_opt
 def convert(
-    src: Path,
-    dest: Path | None,
+    src: Annotated[
+        Path,
+        typer.Argument(exists=True, dir_okay=False, help="Source image"),
+    ],
+    dest: Annotated[
+        Path | None,
+        typer.Argument(dir_okay=False, help="Destination BMP"),
+    ] = None,
     *,
-    log_level: LogLevel,
-    dither: bool,
+    dither: DitherOption = True,
+    log_level: LogLevelOption = "info",
 ) -> None:
     """Fit and quantize."""
     from eink.scripts.convert import main  # noqa: PLC0415
-
-    _dest = dest if dest is not None else src.with_suffix(".bmp")
 
     setup_logging(log_level)
     main(src, dest, dither=dither).unwrap()
 
 
 @app.command(help="Display an image on the e-Paper panel")
-@argument("path", type=ClickPath(exists=True, dir_okay=False, path_type=Path))
-@log_level_opt
-def display(path: Path, *, log_level: LogLevel) -> None:
+def display(
+    path: Annotated[
+        Path,
+        typer.Argument(exists=True, dir_okay=False, help="Image to show"),
+    ],
+    *,
+    log_level: LogLevelOption = "info",
+) -> None:
     """Show PATH on the panel, then put it back to sleep."""
     from eink.scripts.display import main  # noqa: PLC0415
 

@@ -19,10 +19,11 @@ if TYPE_CHECKING:
 async def main(destination: Path) -> None:
     """Fetch the forecast and save its rendered dashboard image."""
     client = OpenMeteoClient()
-    forecast = await client.get_forecast()
-    weather = unsafe_perform_io(forecast.unwrap())
-
-    await client.close()
+    try:
+        forecast = await client.get_forecast()
+        weather = unsafe_perform_io(forecast.unwrap())
+    finally:
+        await client.close()
 
     image = WeatherRenderer().render(weather).unwrap()
     destination.parent.mkdir(parents=True, exist_ok=True)

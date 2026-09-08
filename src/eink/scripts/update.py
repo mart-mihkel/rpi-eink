@@ -16,10 +16,11 @@ from eink.weather.render import WeatherRenderer
 async def main(*, dither: bool = True) -> None:
     """Fetch weather, render a PNG, convert it to BMP, and display it."""
     client = OpenMeteoClient()
-    forecast = await client.get_forecast()
-    weather = unsafe_perform_io(forecast.unwrap())
-
-    await client.close()
+    try:
+        forecast = await client.get_forecast()
+        weather = unsafe_perform_io(forecast.unwrap())
+    finally:
+        await client.close()
 
     img = WeatherRenderer().render(weather).unwrap()
     img = ImageConverter().convert(img, dither=dither).unwrap()

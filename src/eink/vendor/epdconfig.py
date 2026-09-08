@@ -6,7 +6,52 @@ from functools import cache
 from typing import TYPE_CHECKING
 
 import gpiozero
-import spidev
+
+if TYPE_CHECKING:
+    import spidev
+else:
+    try:
+        import spidev
+    except ImportError:  # pragma: no cover - non-Linux dev without SPI hardware
+        import sys
+        import types
+
+        msg = "spidev requires Linux; sync with `--extra rpi` on a Pi"
+
+        class _MissingSpiDev:
+            """Fail with guidance when SPI is used without the Linux-only spidev."""
+
+            max_speed_hz: int
+            mode: int
+
+            def open(self, bus: int, device: int) -> None:
+                """Open the SPI bus, unavailable without spidev."""
+                del bus, device
+                raise RuntimeError(msg)
+
+            def close(self) -> None:
+                """Close the SPI bus, unavailable without spidev."""
+                raise RuntimeError(msg)
+
+            def writebytes(self, values: list[int]) -> None:
+                """Write bytes, unavailable without spidev."""
+                del values
+                raise RuntimeError(msg)
+
+            def writebytes2(self, values: list[int]) -> None:
+                """Write bytes, unavailable without spidev."""
+                del values
+                raise RuntimeError(msg)
+
+            def xfer3(self, values: list[int]) -> None:
+                """Transfer bytes, unavailable without spidev."""
+                del values
+                raise RuntimeError(msg)
+
+        _spidev_stub = types.ModuleType("spidev")
+        _spidev_stub.SpiDev = _MissingSpiDev  # type: ignore[attr-defined]
+        sys.modules["spidev"] = _spidev_stub
+        spidev = _spidev_stub  # type: ignore[no-redef]
 
 from eink.logging import logger
 
