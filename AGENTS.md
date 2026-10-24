@@ -30,15 +30,7 @@ just test [args]  # pytest with varitaic arg passthrough
 
 ## Conventions
 
-- Fallible code uses `returns`: `@safe`/`@future_safe` functions return `Result`/`IOResult`, and `.unwrap()` appears only at the CLI boundary. Tests await future-safe calls, then match on `IOSuccess(Success(...))` / `IOFailure(Failure(...))`.
-- Logging goes through `eink.logging.logger`; the group callback calls `setup_logging()`, and each command applies `--log-level` with `logger.setLevel(log_level.upper())`.
-- The dashboard template uses `StrictUndefined`: any variable it references must be a field on `RenderContext`/`HourlyContext` in `weather/schemas.py`.
-- Pydantic models describing API payloads use `extra="forbid"`; keep new response models equally strict.
-- The six real ink colors live in `ImageConverter._panel_colors`; the template draws weather icons as inline SVG macros.
-- Python docstrings are a single high-level line for simple objects; use numpy sections only when parameters, returns, or raises need explanation.
-- Add tests to the closest existing file in `test/` rather than creating new modules or packages.
-- Pytest turns `DeprecationWarning`, `FutureWarning`, `RuntimeWarning`, and `UserWarning` into errors.
-- Ruff selects `ALL`; only `COM812`, `CPY001`, `D203`, and `D212` are ignored, and `test/**` additionally allows missing docstrings, asserts, boolean positional arguments, and private access.
+- Python docstrings are a single high-level oneline overview.
 
 ## Guidelines
 
