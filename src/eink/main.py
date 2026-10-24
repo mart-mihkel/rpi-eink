@@ -1,146 +1,307 @@
 """Command-line entry point for the eInk dashboard."""
 
 import asyncio
-from pathlib import Path  # noqa: TC003 - typer resolves annotations at runtime
-from typing import Annotated
+from pathlib import Path
+from typing import get_args
 
-import typer
+import rich_click as click
 
-from eink.constants import DATA
 from eink.logging import logger, setup_logging
 from eink.types import LogLevel
+lazy from eink.scripts.convert import main as convert_main
+lazy from eink.scripts.daemon import DaemonConfig
+lazy from eink.scripts.daemon import main as weather_daemon_main
+lazy from eink.scripts.demo import main as demo_main
+lazy from eink.scripts.display import main as display_main
+lazy from eink.scripts.slideshow import DirDaemonConfig
+lazy from eink.scripts.slideshow import main as dir_daemon_main
+lazy from eink.scripts.update import main as weather_update_main
 
-app = typer.Typer(
-    help="Run the eInk dashboard command-line application.",
-    add_completion=False,
-    no_args_is_help=True,
+
+@click.group(
+    "rink",
     context_settings={"help_option_names": ["-h", "--help"]},
+    help="Run the eInk dashboard command-line application.",
+    no_args_is_help=True,
 )
+@click.rich_config(
+    click.RichHelpConfiguration(
+        theme="cargo-slim",
+        command_groups={
+            "rink": [
+                {
+                    "name": "Weather",
+                    "commands": ["weather-update", "weather-daemon"],
+                },
+                {
+                    "name": "Display",
+                    "commands": ["dir-daemon", "display"],
+                },
+                {
+                    "name": "Tools",
+                    "commands": ["demo", "convert"],
+                },
+            ],
+        },
+        option_groups={
+            "rink *": [
+                {"name": "Input", "options": ["--src", "--output"]},
+                {
+                    "name": "Schedule",
+                    "options": [
+                        "--interval",
+                        "--retry-interval",
+                        "--recursive",
+                        "--seed",
+                    ],
+                },
+                {"name": "Rendering", "options": ["--dither"]},
+                {"name": "Run", "options": ["--log-level"]},
+            ],
+        },
+    )
+)
+def app() -> None:
+    """Run the eInk dashboard command-line application."""
+    setup_logging()
 
-LogLevelOption = Annotated[
-    LogLevel,
-    typer.Option("--log-level", "-l", help="Log level"),
-]
-DitherOption = Annotated[
-    bool,
-    typer.Option(help="Use Floyd-Steinberg dithering"),
-]
 
-
-@app.command(help="Fetch weather data and render the dashboard image")
-def render(
-    *,
-    output: Annotated[
-        Path,
-        typer.Option("--output", "-o", dir_okay=False, help="Output image path"),
-    ] = DATA / "render.png",
-    log_level: LogLevelOption = "info",
-) -> None:
-    """Fetch the forecast and render it as a dashboard image."""
-    from eink.scripts.render import main  # noqa: PLC0415
-
-    setup_logging(log_level)
-    asyncio.run(main(output)).unwrap()
-
-
-@app.command(help="Fetch, render, convert, and display the weather dashboard")
-def update(
-    *,
-    dither: DitherOption = True,
-    log_level: LogLevelOption = "info",
-) -> None:
+@app.command(
+    "weather-update",
+    help="Fetch, render, convert, and display the weather dashboard",
+)
+@click.option(
+    "--dither/--no-dither",
+    default=True,
+    help="Use Floyd-Steinberg dithering",
+)
+@click.option(
+    "--log-level",
+    "-l",
+    type=click.Choice(get_args(LogLevel)),
+    default="info",
+    show_default=True,
+    help="Log level",
+)
+def weather_update(*, dither: bool, log_level: LogLevel) -> None:
     """Fetch weather, render it, convert it, and show it on the panel."""
-    from eink.scripts.update import main  # noqa: PLC0415
-
-    setup_logging(log_level)
-    asyncio.run(main(dither=dither)).unwrap()
+    logger.setLevel(log_level.upper())
+    asyncio.run(weather_update_main(dither=dither)).unwrap()
 
 
-@app.command(help="Run the dashboard update hourly, waiting out network outages")
-def daemon(
+@app.command(
+    "weather-daemon",
+    help="Run the dashboard update hourly, waiting out network outages",
+)
+@click.option(
+    "--interval",
+    "-i",
+    type=float,
+    default=3600.0,
+    show_default=True,
+    help="Seconds between successful updates",
+)
+@click.option(
+    "--retry-interval",
+    "-r",
+    type=float,
+    default=60.0,
+    show_default=True,
+    help="Seconds between attempts while offline",
+)
+@click.option(
+    "--dither/--no-dither",
+    default=True,
+    help="Use Floyd-Steinberg dithering",
+)
+@click.option(
+    "--log-level",
+    "-l",
+    type=click.Choice(get_args(LogLevel)),
+    default="info",
+    show_default=True,
+    help="Log level",
+)
+def weather_daemon(
     *,
-    interval: Annotated[
-        float,
-        typer.Option("--interval", "-i", help="Seconds between successful updates"),
-    ] = 3600.0,
-    retry_interval: Annotated[
-        float,
-        typer.Option(
-            "--retry-interval",
-            "-r",
-            help="Seconds between attempts while offline",
-        ),
-    ] = 60.0,
-    dither: DitherOption = True,
-    log_level: LogLevelOption = "info",
+    interval: float,
+    retry_interval: float,
+    dither: bool,
+    log_level: LogLevel,
 ) -> None:
     """Update hourly; on network errors retry until reconnected, then resume."""
-    from eink.scripts.daemon import DaemonConfig  # noqa: PLC0415
-    from eink.scripts.daemon import main as daemon_main  # noqa: PLC0415
-
     if interval <= 0:
         msg = "interval must be positive"
-        raise typer.BadParameter(msg)
+        raise click.BadParameter(msg, param_hint="--interval")
     if retry_interval <= 0:
         msg = "retry_interval must be positive"
-        raise typer.BadParameter(msg)
+        raise click.BadParameter(msg, param_hint="--retry-interval")
 
-    setup_logging(log_level)
+    logger.setLevel(log_level.upper())
     config = DaemonConfig(
         interval=interval,
         retry_interval=retry_interval,
         dither=dither,
     )
     try:
-        asyncio.run(daemon_main(config))
+        asyncio.run(weather_daemon_main(config))
     except KeyboardInterrupt:
         logger.info("update daemon stopped")
 
 
-@app.command(help="Run the vendored WaveShare e-Paper display demo")
-def demo(log_level: LogLevelOption = "info") -> None:
-    """Run the e-Paper display demo, logging any hardware failure."""
-    from eink.scripts.demo import main  # noqa: PLC0415
-
-    setup_logging(log_level)
-    main().unwrap()
-
-
-@app.command(help="Convert an image into a panel-ready BMP")
-def convert(
-    src: Annotated[
-        Path,
-        typer.Argument(exists=True, dir_okay=False, help="Source image"),
-    ],
-    dest: Annotated[
-        Path | None,
-        typer.Argument(dir_okay=False, help="Destination BMP"),
-    ] = None,
+@app.command(
+    "dir-daemon",
+    help="Show random images from a directory on a schedule",
+)
+@click.option(
+    "--src",
+    type=click.Path(path_type=Path),
+    required=True,
+    help="Source directory with images",
+)
+@click.option(
+    "--interval",
+    "-i",
+    type=float,
+    default=600.0,
+    show_default=True,
+    help="Seconds between images",
+)
+@click.option(
+    "--recursive/--no-recursive",
+    default=False,
+    show_default=True,
+    help="Search subdirectories too",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=None,
+    help="Seed for reproducible random order",
+)
+@click.option(
+    "--dither/--no-dither",
+    default=True,
+    help="Use Floyd-Steinberg dithering",
+)
+@click.option(
+    "--log-level",
+    "-l",
+    type=click.Choice(get_args(LogLevel)),
+    default="info",
+    show_default=True,
+    help="Log level",
+)
+def dir_daemon(  # noqa: PLR0913 - click maps each option to a function argument
     *,
-    dither: DitherOption = True,
-    log_level: LogLevelOption = "info",
+    src: Path,
+    interval: float,
+    recursive: bool,
+    seed: int | None,
+    dither: bool,
+    log_level: LogLevel,
+) -> None:
+    """Pick random images from SRC, convert, and show them until an error stops."""
+    if interval <= 0:
+        msg = "interval must be positive"
+        raise click.BadParameter(msg, param_hint="--interval")
+    if not src.is_dir():
+        msg = f"src must be a directory, got {src}"
+        raise click.BadParameter(msg, param_hint="--src")
+
+    logger.setLevel(log_level.upper())
+    config = DirDaemonConfig(
+        source=src,
+        interval=interval,
+        recursive=recursive,
+        seed=seed,
+        dither=dither,
+    )
+    try:
+        asyncio.run(dir_daemon_main(config))
+    except KeyboardInterrupt:
+        logger.info("dir daemon stopped")
+    except Exception as exc:
+        msg = f"dir daemon failed: {exc}"
+        raise click.ClickException(msg) from exc
+
+
+@app.command(
+    "demo",
+    help="Run the vendored WaveShare e-Paper display demo",
+)
+@click.option(
+    "--log-level",
+    "-l",
+    type=click.Choice(get_args(LogLevel)),
+    default="info",
+    show_default=True,
+    help="Log level",
+)
+def demo(*, log_level: LogLevel) -> None:
+    """Run the e-Paper display demo, logging any hardware failure."""
+    logger.setLevel(log_level.upper())
+    demo_main().unwrap()
+
+
+@app.command(
+    "convert",
+    help="Convert an image into a panel-ready BMP",
+)
+@click.argument(
+    "src",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "dest",
+    type=click.Path(dir_okay=False, path_type=Path),
+    required=False,
+)
+@click.option(
+    "--dither/--no-dither",
+    default=True,
+    help="Use Floyd-Steinberg dithering",
+)
+@click.option(
+    "--log-level",
+    "-l",
+    type=click.Choice(get_args(LogLevel)),
+    default="info",
+    show_default=True,
+    help="Log level",
+)
+def convert(
+    src: Path,
+    dest: Path | None,
+    *,
+    dither: bool,
+    log_level: LogLevel,
 ) -> None:
     """Fit and quantize."""
-    from eink.scripts.convert import main  # noqa: PLC0415
-
-    setup_logging(log_level)
-    main(src, dest, dither=dither).unwrap()
+    logger.setLevel(log_level.upper())
+    convert_main(src, dest, dither=dither).unwrap()
 
 
-@app.command(help="Display an image on the e-Paper panel")
-def display(
-    path: Annotated[
-        Path,
-        typer.Argument(exists=True, dir_okay=False, help="Image to show"),
-    ],
-    *,
-    log_level: LogLevelOption = "info",
-) -> None:
+@app.command(
+    "display",
+    help="Display an image, converting non-BMP sources for the panel",
+)
+@click.argument(
+    "path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--log-level",
+    "-l",
+    type=click.Choice(get_args(LogLevel)),
+    default="info",
+    show_default=True,
+    help="Log level",
+)
+def display(path: Path, *, log_level: LogLevel) -> None:
     """Show PATH on the panel, then put it back to sleep."""
-    from eink.scripts.display import main  # noqa: PLC0415
-
-    setup_logging(log_level)
-    main(path).unwrap()
+    logger.setLevel(log_level.upper())
+    display_main(path).unwrap()
 
 
 if __name__ == "__main__":

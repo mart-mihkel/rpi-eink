@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from PIL import Image
 from returns.result import safe
 
+from eink.convert import ImageConverter
 from eink.logging import logger
 from eink.vendor.epd7in3e import EPD
 
@@ -12,9 +13,24 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
+def prepare_image(path: Path, *, dither: bool = True) -> Image.Image:
+    """Load an image, fitting and quantizing non-BMP sources to the panel."""
+    with Image.open(path) as image:
+        if path.suffix.lower() == ".bmp":
+            return image.copy()
+
+        converter = ImageConverter()
+        return converter.convert(image, dither=dither).unwrap()
+
+
+def display_image(image: Image.Image) -> None:
+    """Send a panel-ready image to the display, then put the panel back to sleep."""
+    with EPD() as epd:
+        logger.info("displaying image")
+        epd.display(epd.getbuffer(image).unwrap())
+
+
 @safe
 def main(path: Path) -> None:
     """Show an image on the panel, then put it back to sleep."""
-    with Image.open(path) as img, EPD() as epd:
-        logger.info("displaying image")
-        epd.display(epd.getbuffer(img).unwrap())
+    display_image(prepare_image(path))

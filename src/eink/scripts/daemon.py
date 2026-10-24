@@ -12,6 +12,7 @@ from returns.result import Failure, Success
 from returns.unsafe import unsafe_perform_io
 
 from eink.logging import logger
+lazy from eink.scripts.update import main as run_update
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -27,23 +28,7 @@ _network_errors: tuple[type[BaseException], ...] = (httpx.HTTPError, OSError)
 
 
 def is_network_error(error: BaseException) -> bool:
-    """
-    Check whether an error, possibly wrapped, signals a network outage.
-
-    Parameters
-    ----------
-    error:
-        The failure to classify. ``__cause__`` and ``__context__`` chains
-        are followed because ``returns`` surfaces failures as an
-        ``UnwrapFailedError`` wrapping the original exception.
-
-    Returns
-    -------
-    bool
-        True when the error or anything it wraps is an ``httpx`` or OS-level
-        network error.
-
-    """
+    """Check whether an error, possibly wrapped, signals a network outage."""
     seen: set[int] = set()
     stack: list[BaseException] = [error]
     while stack:
@@ -65,20 +50,7 @@ def is_network_error(error: BaseException) -> bool:
 
 
 def _root_cause(error: BaseException) -> BaseException:
-    """
-    Return the deepest wrapped exception for readable logging.
-
-    Parameters
-    ----------
-    error:
-        The failure to unwrap.
-
-    Returns
-    -------
-    BaseException
-        The innermost ``__cause__`` or ``__context__``, or ``error`` itself.
-
-    """
+    """Return the deepest wrapped exception for readable logging."""
     seen: set[int] = set()
     current = error
     while id(current) not in seen:
@@ -125,21 +97,7 @@ class DaemonConfig:
 
 
 def _to_result(io_result: IOResult[None, Exception]) -> Result[None, Exception]:
-    """
-    Flatten a future-safe ``IOResult`` into a plain ``Result``.
-
-    Parameters
-    ----------
-    io_result:
-        The ``IOResult`` produced by awaiting a ``@future_safe`` coroutine.
-
-    Returns
-    -------
-    Result[None, Exception]
-        Success on a successful update, otherwise the original failure
-        unwrapped from its ``IO`` container.
-
-    """
+    """Flatten a future-safe ``IOResult`` into a plain ``Result``."""
     if isinstance(io_result, IOSuccess):
         return Success(None)
 
@@ -152,25 +110,7 @@ async def run_daemon(
     update: UpdateFn,
     sleep: SleepFn = asyncio.sleep,
 ) -> None:
-    """
-    Run ``update`` hourly, retrying quickly while the network is down.
-
-    Parameters
-    ----------
-    config:
-        The schedule to follow.
-    update:
-        The update attempt, returning a ``Result``.
-    sleep:
-        The async sleep implementation (injectable for tests).
-
-    Runs once immediately, then sleeps ``config.interval`` after each
-    success. Failures classified by :func:`is_network_error` sleep only
-    ``config.retry_interval``, so a reconnected Pi updates right away and
-    then resumes hourly updates. Other failures are logged and retried
-    after a full interval. Cancellation propagates for graceful shutdown.
-
-    """
+    """Run ``update`` hourly, retrying quickly while the network is down."""
     logger.info(
         "starting update daemon interval=%ss retry_interval=%ss dither=%s",
         config.interval,
@@ -214,16 +154,7 @@ async def run_daemon(
 
 
 async def main(config: DaemonConfig) -> None:
-    """
-    Run the update daemon with the real hardware update.
-
-    Parameters
-    ----------
-    config:
-        The schedule to follow.
-
-    """
-    from eink.scripts.update import main as run_update  # noqa: PLC0415
+    """Run the update daemon with the real hardware update."""
 
     async def _update() -> Result[None, Exception]:
         return _to_result(await run_update(dither=config.dither))

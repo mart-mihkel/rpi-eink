@@ -1,27 +1,31 @@
-"""Rich-backed logging setup."""
+"""Rich logging setup."""
 
 import logging
-from typing import TYPE_CHECKING
+import sys
+from typing import TextIO
 
 import rich.traceback
+from rich.console import Console
 from rich.logging import RichHandler
-
-if TYPE_CHECKING:
-    from eink.types import LogLevel
 
 logger = logging.getLogger("eink")
 """Project logger."""
 
 
-def setup_logging(log_level: LogLevel) -> None:
-    """Install the rich log handler, ascii tqdm bars, and rich tracebacks."""
-    logging.basicConfig(
-        format="%(message)s",
-        handlers=[RichHandler(show_path=False, show_time=False)],
+def rich_handler(stream: TextIO) -> RichHandler:
+    """Build a rich handler writing to a stream."""
+    return RichHandler(
+        console=Console(file=stream),
+        rich_tracebacks=True,
+        omit_repeated_times=False,
     )
 
-    logger.setLevel(log_level.upper())
-    logger.debug("finished logging setup")
+
+def setup_logging() -> None:
+    """Install the rich log handler and rich tracebacks."""
+    root = logging.getLogger()
+    if not any(isinstance(handler, RichHandler) for handler in root.handlers):
+        root.addHandler(rich_handler(sys.stderr))
 
     rich.traceback.install(suppress=[rich])
-    logger.debug("finished rich tracebacks setup")
+    logger.setLevel(logging.INFO)

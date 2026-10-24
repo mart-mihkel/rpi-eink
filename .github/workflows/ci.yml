@@ -30,4 +30,4 @@ jobs:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
       - run: uv sync --frozen
-      - run: uv run --no-sync pytest
+      - run: uv run --no-sync pytest --verbose --cov --durations 10000 --durations-min 5
