@@ -7,9 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import httpx
-from returns.io import IOSuccess
-from returns.result import Failure, Success
-from returns.unsafe import unsafe_perform_io
+from returns.result import Success
 
 from eink.logging import logger
 lazy from eink.scripts.update import main as run_update
@@ -17,7 +15,6 @@ lazy from eink.scripts.update import main as run_update
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
-    from returns.io import IOResult
     from returns.result import Result
 
     type UpdateFn = Callable[[], Awaitable[Result[None, Exception]]]
@@ -96,14 +93,6 @@ class DaemonConfig:
             raise ValueError(msg)
 
 
-def _to_result(io_result: IOResult[None, Exception]) -> Result[None, Exception]:
-    """Flatten a future-safe ``IOResult`` into a plain ``Result``."""
-    if isinstance(io_result, IOSuccess):
-        return Success(None)
-
-    return Failure(unsafe_perform_io(io_result.failure()))
-
-
 async def run_daemon(
     config: DaemonConfig,
     *,
@@ -157,6 +146,6 @@ async def main(config: DaemonConfig) -> None:
     """Run the update daemon with the real hardware update."""
 
     async def _update() -> Result[None, Exception]:
-        return _to_result(await run_update(dither=config.dither))
+        return await run_update(dither=config.dither)
 
     await run_daemon(config, update=_update)

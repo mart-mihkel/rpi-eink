@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 
 import httpx
 import pytest
-from returns.future import future_safe
 from returns.result import Failure, Result, Success
 
-from eink.scripts.daemon import DaemonConfig, _to_result, is_network_error, run_daemon
+from eink.results import asafe
+from eink.scripts.daemon import DaemonConfig, is_network_error, run_daemon
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -52,25 +52,25 @@ def test_is_network_error_detects_outages(error: BaseException) -> None:
 
 
 async def test_is_network_error_follows_returns_wrapping() -> None:
-    """Failures surfaced through `returns` still classify as network errors."""
+    """Failures surfaced through `asafe` still classify as network errors."""
 
-    @future_safe
+    @asafe
     async def _failing() -> None:
         raise _offline_error()
 
-    result = _to_result(await _failing())
+    result = await _failing()
     assert isinstance(result, Failure)
     assert is_network_error(result.failure()) is True
 
 
-async def test_to_result_unwraps_success() -> None:
-    """A successful future becomes a plain success."""
+async def test_asafe_wraps_success() -> None:
+    """A successful coroutine becomes a plain success."""
 
-    @future_safe
+    @asafe
     async def _succeeding() -> None:
         return None
 
-    result = _to_result(await _succeeding())
+    result = await _succeeding()
     assert isinstance(result, Success)
 
 

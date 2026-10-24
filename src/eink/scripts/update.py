@@ -2,23 +2,20 @@
 
 from __future__ import annotations
 
-from returns.future import future_safe
-from returns.unsafe import unsafe_perform_io
-
 from eink.constants import DATA
 from eink.convert import ImageConverter
+from eink.results import asafe
 from eink.scripts.display import main as display
 from eink.weather.client import OpenMeteoClient
 from eink.weather.render import WeatherRenderer
 
 
-@future_safe
+@asafe
 async def main(*, dither: bool = True) -> None:
     """Fetch weather, render a PNG, convert it to BMP, and display it."""
     client = OpenMeteoClient()
     try:
-        forecast = await client.get_forecast()
-        weather = unsafe_perform_io(forecast.unwrap())
+        weather = (await client.get_forecast()).unwrap()
     finally:
         await client.close()
 

@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 import pytest
 from PIL import Image
-from returns.io import IOFailure, IOSuccess
 from returns.result import Failure, Success
 
 from eink.weather.client import OpenMeteoClient
@@ -32,10 +31,10 @@ async def client() -> AsyncIterator[OpenMeteoClient]:
 @pytest.fixture
 async def forecast(client: OpenMeteoClient) -> WeatherResponse:
     """Fetch a forecast from the cassette recording."""
-    result = await client.get_forecast().awaitable()
+    result = await client.get_forecast()
 
     match result:
-        case IOSuccess(Success(weather)):
+        case Success(weather):
             return weather
         case _:
             pytest.fail(f"expected success, got {result!r}")
@@ -44,10 +43,10 @@ async def forecast(client: OpenMeteoClient) -> WeatherResponse:
 @pytest.mark.vcr
 async def test_get_current_default_location(client: OpenMeteoClient) -> None:
     """Fetch current conditions for the client's default coordinates."""
-    result = await client.get_current().awaitable()
+    result = await client.get_current()
 
     match result:
-        case IOSuccess(Success(weather)):
+        case Success(weather):
             assert isinstance(weather, WeatherResponse)
             assert weather.daily is None
             assert weather.daily_units is None
@@ -58,10 +57,10 @@ async def test_get_current_default_location(client: OpenMeteoClient) -> None:
 @pytest.mark.vcr
 async def test_get_current_explicit_location(client: OpenMeteoClient) -> None:
     """Fetch current conditions for an explicit latitude and longitude."""
-    result = await client.get_current(latitude=51.5072, longitude=-0.1276).awaitable()
+    result = await client.get_current(latitude=51.5072, longitude=-0.1276)
 
     match result:
-        case IOSuccess(Success(weather)):
+        case Success(weather):
             assert weather.latitude == pytest.approx(51.5072, abs=0.2)
             assert weather.longitude == pytest.approx(-0.1276, abs=0.2)
         case _:
@@ -72,10 +71,10 @@ async def test_get_current_explicit_location(client: OpenMeteoClient) -> None:
 async def test_get_forecast_default_days(client: OpenMeteoClient) -> None:
     """Fetch a forecast using the default seven-day window."""
     forecast_days = 7
-    result = await client.get_forecast().awaitable()
+    result = await client.get_forecast()
 
     match result:
-        case IOSuccess(Success(weather)):
+        case Success(weather):
             assert weather.daily is not None
             assert len(weather.daily.time) == forecast_days
         case _:
@@ -86,10 +85,10 @@ async def test_get_forecast_default_days(client: OpenMeteoClient) -> None:
 async def test_get_forecast_custom_days(client: OpenMeteoClient) -> None:
     """Fetch a forecast for a caller-specified number of days."""
     forecast_days = 3
-    result = await client.get_forecast(forecast_days=forecast_days).awaitable()
+    result = await client.get_forecast(forecast_days=forecast_days)
 
     match result:
-        case IOSuccess(Success(weather)):
+        case Success(weather):
             assert weather.daily is not None
             assert len(weather.daily.time) == forecast_days
         case _:
@@ -143,10 +142,10 @@ async def test_get_current_invalid_latitude_is_a_failure(
     client: OpenMeteoClient,
 ) -> None:
     """Reject an out-of-range latitude without making a request."""
-    result = await client.get_current(latitude=200, longitude=26.7290).awaitable()
+    result = await client.get_current(latitude=200, longitude=26.7290)
 
     match result:
-        case IOFailure(Failure(err)):
+        case Failure(err):
             assert isinstance(err, ValueError)
         case _:
             pytest.fail(f"expected failure, got {result!r}")

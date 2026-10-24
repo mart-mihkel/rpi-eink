@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from click import unstyle
 from click.testing import CliRunner
 from PIL import Image
 
@@ -119,7 +120,7 @@ def test_every_command_renders_help(command: str) -> None:
     result = runner.invoke(app, [command, "--help"])
 
     assert result.exit_code == 0
-    assert f"Usage: rink {command}" in result.output
+    assert f"Usage: rink {command}" in unstyle(result.output)
 
 
 def test_convert_writes_a_panel_bmp(tmp_path: Path) -> None:

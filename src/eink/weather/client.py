@@ -1,9 +1,9 @@
 """Client and schemas for the Open-Meteo weather API."""
 
 from httpx import AsyncClient
-from returns.future import future_safe
 
 from eink.logging import logger
+from eink.results import asafe
 from eink.weather.schemas import OpenMeteoQuery, WeatherResponse
 
 
@@ -45,7 +45,7 @@ class OpenMeteoClient:
             timeout=10,
         )
 
-    @future_safe
+    @asafe
     async def get_current(
         self,
         latitude: float = _latitude,
@@ -82,7 +82,7 @@ class OpenMeteoClient:
 
         return weather
 
-    @future_safe
+    @asafe
     async def get_forecast(
         self,
         latitude: float = _latitude,
