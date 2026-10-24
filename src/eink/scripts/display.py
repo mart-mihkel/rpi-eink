@@ -13,10 +13,10 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def prepare_image(path: Path, *, dither: bool = True) -> Image.Image:
+def prepare_image(src: Path, *, dither: bool = True) -> Image.Image:
     """Load an image, fitting and quantizing non-BMP sources to the panel."""
-    with Image.open(path) as image:
-        if path.suffix.lower() == ".bmp":
+    with Image.open(src) as image:
+        if src.suffix.lower() == ".bmp":
             return image.copy()
 
         converter = ImageConverter()
@@ -31,6 +31,6 @@ def display_image(image: Image.Image) -> None:
 
 
 @safe
-def main(path: Path) -> None:
+def main(src: Path) -> None:
     """Show an image on the panel, then put it back to sleep."""
-    display_image(prepare_image(path))
+    display_image(prepare_image(src))

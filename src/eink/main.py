@@ -66,23 +66,28 @@ def app() -> None:
     setup_logging()
 
 
-@app.command(
-    "weather-update",
-    help="Fetch, render, convert, and display the weather dashboard",
-)
-@click.option(
-    "--dither/--no-dither",
-    default=True,
-    help="Use Floyd-Steinberg dithering",
-)
-@click.option(
+log_level = click.option(
     "--log-level",
-    "-l",
+    "-ll",
     type=click.Choice(get_args(LogLevel)),
     default="info",
     show_default=True,
     help="Log level",
 )
+
+dither = click.option(
+    "--dither/--no-dither",
+    default=True,
+    help="Use Floyd-Steinberg dithering",
+)
+
+
+@app.command(
+    "weather-update",
+    help="Fetch, render, convert, and display the weather dashboard",
+)
+@dither
+@log_level
 def weather_update(*, dither: bool, log_level: LogLevel) -> None:
     """Fetch weather, render it, convert it, and show it on the panel."""
     logger.setLevel(log_level.upper())
@@ -109,19 +114,8 @@ def weather_update(*, dither: bool, log_level: LogLevel) -> None:
     show_default=True,
     help="Seconds between attempts while offline",
 )
-@click.option(
-    "--dither/--no-dither",
-    default=True,
-    help="Use Floyd-Steinberg dithering",
-)
-@click.option(
-    "--log-level",
-    "-l",
-    type=click.Choice(get_args(LogLevel)),
-    default="info",
-    show_default=True,
-    help="Log level",
-)
+@dither
+@log_level
 def weather_daemon(
     *,
     interval: float,
@@ -173,31 +167,13 @@ def weather_daemon(
     show_default=True,
     help="Search subdirectories too",
 )
-@click.option(
-    "--seed",
-    type=int,
-    default=None,
-    help="Seed for reproducible random order",
-)
-@click.option(
-    "--dither/--no-dither",
-    default=True,
-    help="Use Floyd-Steinberg dithering",
-)
-@click.option(
-    "--log-level",
-    "-l",
-    type=click.Choice(get_args(LogLevel)),
-    default="info",
-    show_default=True,
-    help="Log level",
-)
-def dir_daemon(  # noqa: PLR0913 - click maps each option to a function argument
+@dither
+@log_level
+def dir_daemon(
     *,
     src: Path,
     interval: float,
     recursive: bool,
-    seed: int | None,
     dither: bool,
     log_level: LogLevel,
 ) -> None:
@@ -214,9 +190,9 @@ def dir_daemon(  # noqa: PLR0913 - click maps each option to a function argument
         source=src,
         interval=interval,
         recursive=recursive,
-        seed=seed,
         dither=dither,
     )
+
     try:
         asyncio.run(dir_daemon_main(config))
     except KeyboardInterrupt:
@@ -230,14 +206,7 @@ def dir_daemon(  # noqa: PLR0913 - click maps each option to a function argument
     "demo",
     help="Run the vendored WaveShare e-Paper display demo",
 )
-@click.option(
-    "--log-level",
-    "-l",
-    type=click.Choice(get_args(LogLevel)),
-    default="info",
-    show_default=True,
-    help="Log level",
-)
+@log_level
 def demo(*, log_level: LogLevel) -> None:
     """Run the e-Paper display demo, logging any hardware failure."""
     logger.setLevel(log_level.upper())
@@ -257,19 +226,8 @@ def demo(*, log_level: LogLevel) -> None:
     type=click.Path(dir_okay=False, path_type=Path),
     required=False,
 )
-@click.option(
-    "--dither/--no-dither",
-    default=True,
-    help="Use Floyd-Steinberg dithering",
-)
-@click.option(
-    "--log-level",
-    "-l",
-    type=click.Choice(get_args(LogLevel)),
-    default="info",
-    show_default=True,
-    help="Log level",
-)
+@dither
+@log_level
 def convert(
     src: Path,
     dest: Path | None,
@@ -287,21 +245,14 @@ def convert(
     help="Display an image, converting non-BMP sources for the panel",
 )
 @click.argument(
-    "path",
+    "src",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
 )
-@click.option(
-    "--log-level",
-    "-l",
-    type=click.Choice(get_args(LogLevel)),
-    default="info",
-    show_default=True,
-    help="Log level",
-)
-def display(path: Path, *, log_level: LogLevel) -> None:
+@log_level
+def display(src: Path, *, log_level: LogLevel) -> None:
     """Show PATH on the panel, then put it back to sleep."""
     logger.setLevel(log_level.upper())
-    display_main(path).unwrap()
+    display_main(src).unwrap()
 
 
 if __name__ == "__main__":

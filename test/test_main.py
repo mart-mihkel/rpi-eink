@@ -83,7 +83,6 @@ def test_dir_daemon_help_shows_options() -> None:
     assert "--src" in result.output
     assert "--interval" in result.output
     assert "--recursive" in result.output
-    assert "--seed" in result.output
     assert "--dither" in result.output
     assert "--log-level" in result.output
 

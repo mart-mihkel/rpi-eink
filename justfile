@@ -15,14 +15,15 @@ set dotenv-load
 
 [arg('host', long, help='remote host and target dir')]
 [arg('commit', long, pattern='true|false', value='true', help='no dry run')]
-[doc('upload working tree to remote host')]
+[doc('upload tree to remote host')]
 [group('build')]
-rsync commit='false' host=env('REMOTE'):
+rsync commit='false' host=env('RSYNC_HOST'):
     rsync --verbose --archive --delete \
         {{ if commit == 'true' { '' } else { '--dry-run' } }} \
         --exclude-from .gitignore \
         --exclude .pytest_cache \
         --exclude .ruff_cache \
+        --exclude .git \
         . {{ host }}
 
 [doc('run pre-commit')]
