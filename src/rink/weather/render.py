@@ -12,7 +12,7 @@ from PIL.Image import Image
 from PIL.Image import open as image_open
 from returns.result import safe
 
-from eink.weather.schemas import (
+from rink.weather.schemas import (
     ChartBar,
     ChartLabel,
     ChartPoint,
@@ -25,7 +25,7 @@ from eink.weather.schemas import (
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from eink.weather.schemas import (
+    from rink.weather.schemas import (
         DailyForecast,
         WeatherKind,
         WeatherResponse,
@@ -84,7 +84,7 @@ class WeatherRenderer:
         """Initialize a renderer for a dashboard panel."""
         self._layout = _Layout()
         self._template_env = Environment(
-            loader=PackageLoader("eink.weather", "templates"),
+            loader=PackageLoader("rink.weather", "templates"),
             autoescape=True,
             undefined=StrictUndefined,
             trim_blocks=True,

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from PIL.Image import open as open_image
 from returns.result import safe
 
-from eink.convert import ImageConverter
+from rink.convert import ImageConverter
 
 if TYPE_CHECKING:
     from pathlib import Path

@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING
 
 from PIL import Image
 
-from eink.logging import logger
-from eink.scripts.display import display_image, prepare_image
+from rink.logging import logger
+from rink.scripts.display import display_image, prepare_image
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Sequence

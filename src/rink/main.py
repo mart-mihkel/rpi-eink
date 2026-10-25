@@ -6,16 +6,16 @@ from typing import get_args
 
 import rich_click as click
 
-from eink.logging import logger, setup_logging
-from eink.types import LogLevel
-lazy from eink.scripts.convert import main as convert_main
-lazy from eink.scripts.daemon import DaemonConfig
-lazy from eink.scripts.daemon import main as weather_daemon_main
-lazy from eink.scripts.demo import main as demo_main
-lazy from eink.scripts.display import main as display_main
-lazy from eink.scripts.slideshow import DirDaemonConfig
-lazy from eink.scripts.slideshow import main as dir_daemon_main
-lazy from eink.scripts.update import main as weather_update_main
+from rink.logging import logger, setup_logging
+from rink.types import LogLevel
+lazy from rink.scripts.convert import main as convert_main
+lazy from rink.scripts.daemon import DaemonConfig
+lazy from rink.scripts.daemon import main as weather_daemon_main
+lazy from rink.scripts.demo import main as demo_main
+lazy from rink.scripts.display import main as display_main
+lazy from rink.scripts.slideshow import DirDaemonConfig
+lazy from rink.scripts.slideshow import main as dir_daemon_main
+lazy from rink.scripts.update import main as weather_update_main
 
 
 @click.group(

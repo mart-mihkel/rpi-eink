@@ -2,7 +2,7 @@
 
 from PIL import Image
 
-from eink.convert import ImageConverter
+from rink.convert import ImageConverter
 
 _width = 800
 _height = 480

@@ -6,9 +6,9 @@ from enum import IntEnum
 from PIL import Image, ImageDraw, ImageFont
 from returns.result import safe
 
-from eink.constants import ASSETS
-from eink.logging import logger
-from eink.vendor.epd7in3e import EPD
+from rink.constants import ASSETS
+from rink.logging import logger
+from rink.vendor.epd7in3e import EPD
 
 
 class _Colors(IntEnum):

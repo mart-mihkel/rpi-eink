@@ -8,7 +8,7 @@ import rich.traceback
 from rich.console import Console
 from rich.logging import RichHandler
 
-logger = logging.getLogger("eink")
+logger = logging.getLogger("rink")
 """Project logger."""
 
 

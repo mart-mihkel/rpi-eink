@@ -6,8 +6,8 @@ import pytest
 from PIL import Image
 from returns.result import Failure
 
-from eink.vendor.epd7in3e import EPD
-from eink.vendor.epdconfig import Pin
+from rink.vendor.epd7in3e import EPD
+from rink.vendor.epdconfig import Pin
 
 if TYPE_CHECKING:
     from .conftest import Hardware

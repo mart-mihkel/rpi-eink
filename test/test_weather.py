@@ -6,9 +6,9 @@ import pytest
 from PIL import Image
 from returns.result import Failure, Success
 
-from eink.weather.client import OpenMeteoClient
-from eink.weather.render import WeatherRenderer
-from eink.weather.schemas import WeatherResponse
+from rink.weather.client import OpenMeteoClient
+from rink.weather.render import WeatherRenderer
+from rink.weather.schemas import WeatherResponse
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator

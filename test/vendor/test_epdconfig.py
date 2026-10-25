@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from eink.vendor import epdconfig
-from eink.vendor.epdconfig import Pin
+from rink.vendor import epdconfig
+from rink.vendor.epdconfig import Pin
 
 if TYPE_CHECKING:
     from .conftest import Hardware

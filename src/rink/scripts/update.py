@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from eink.constants import DATA
-from eink.convert import ImageConverter
-from eink.results import asafe
-from eink.scripts.display import main as display
-from eink.weather.client import OpenMeteoClient
-from eink.weather.render import WeatherRenderer
+from rink.constants import DATA
+from rink.convert import ImageConverter
+from rink.results import asafe
+from rink.scripts.display import main as display
+from rink.weather.client import OpenMeteoClient
+from rink.weather.render import WeatherRenderer
 
 
 @asafe

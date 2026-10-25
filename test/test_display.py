@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from PIL import Image
 
-from eink.scripts.display import prepare_image
+from rink.scripts.display import prepare_image
 
 if TYPE_CHECKING:
     from pathlib import Path

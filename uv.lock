@@ -194,68 +194,6 @@ wheels = [
 ]
 
 [[package]]
-name = "eink"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "cairosvg" },
-    { name = "click" },
-    { name = "gpiozero" },
-    { name = "httpx" },
-    { name = "jinja2" },
-    { name = "pillow" },
-    { name = "pydantic" },
-    { name = "returns" },
-    { name = "rich" },
-    { name = "rich-click" },
-]
-
-[package.optional-dependencies]
-rpi = [
-    { name = "lgpio", marker = "sys_platform == 'linux'" },
-    { name = "spidev", marker = "sys_platform == 'linux'" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "prek" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-recording" },
-    { name = "pytest-xdist" },
-    { name = "ruff" },
-    { name = "ty" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "cairosvg", specifier = "~=2.8.2" },
-    { name = "click", specifier = "~=8.4.2" },
-    { name = "gpiozero", specifier = "~=2.0.1" },
-    { name = "httpx", specifier = "~=0.28.1" },
-    { name = "jinja2", specifier = "~=3.1.6" },
-    { name = "lgpio", marker = "sys_platform == 'linux' and extra == 'rpi'", specifier = "~=0.2.2.0" },
-    { name = "pillow", specifier = "~=12.3.0" },
-    { name = "pydantic", specifier = "~=2.13.4" },
-    { name = "returns", specifier = "~=0.29.0" },
-    { name = "rich", specifier = "~=15.0.0" },
-    { name = "rich-click", specifier = "~=1.9.0" },
-    { name = "spidev", marker = "sys_platform == 'linux' and extra == 'rpi'", specifier = "~=3.8" },
-]
-provides-extras = ["rpi"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "prek" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-recording" },
-    { name = "pytest-xdist" },
-    { name = "ruff" },
-    { name = "ty" },
-]
-
-[[package]]
 name = "execnet"
 version = "2.1.2"
 source = { registry = "https://pypi.org/simple" }
@@ -618,6 +556,68 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/96/3e/5688fdd83aea416de336582a274f2bc8236b5c261b04c11e17bc262786ad/rich_click-1.9.9.tar.gz", hash = "sha256:324cba7513cd4187ee92b2eef21f071714e45be062458c8b157bd7e0c81103e3", size = 75866, upload-time = "2026-09-05T19:20:14.799Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b5/51/b2b91aec091e86bc961e5164f00207d89f133cc82b5ddad541d2132ea819/rich_click-1.9.9-py3-none-any.whl", hash = "sha256:365e7a9d0adb42e41ea832a0a12e02c44c079a26536dee688125eb9814f97274", size = 71910, upload-time = "2026-09-05T19:20:13.587Z" },
+]
+
+[[package]]
+name = "rink"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "cairosvg" },
+    { name = "click" },
+    { name = "gpiozero" },
+    { name = "httpx" },
+    { name = "jinja2" },
+    { name = "pillow" },
+    { name = "pydantic" },
+    { name = "returns" },
+    { name = "rich" },
+    { name = "rich-click" },
+]
+
+[package.optional-dependencies]
+rpi = [
+    { name = "lgpio", marker = "sys_platform == 'linux'" },
+    { name = "spidev", marker = "sys_platform == 'linux'" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "prek" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-recording" },
+    { name = "pytest-xdist" },
+    { name = "ruff" },
+    { name = "ty" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cairosvg", specifier = "~=2.8.2" },
+    { name = "click", specifier = "~=8.4.2" },
+    { name = "gpiozero", specifier = "~=2.0.1" },
+    { name = "httpx", specifier = "~=0.28.1" },
+    { name = "jinja2", specifier = "~=3.1.6" },
+    { name = "lgpio", marker = "sys_platform == 'linux' and extra == 'rpi'", specifier = "~=0.2.2.0" },
+    { name = "pillow", specifier = "~=12.3.0" },
+    { name = "pydantic", specifier = "~=2.13.4" },
+    { name = "returns", specifier = "~=0.29.0" },
+    { name = "rich", specifier = "~=15.0.0" },
+    { name = "rich-click", specifier = "~=1.9.0" },
+    { name = "spidev", marker = "sys_platform == 'linux' and extra == 'rpi'", specifier = "~=3.8" },
+]
+provides-extras = ["rpi"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "prek" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-recording" },
+    { name = "pytest-xdist" },
+    { name = "ruff" },
+    { name = "ty" },
 ]
 
 [[package]]

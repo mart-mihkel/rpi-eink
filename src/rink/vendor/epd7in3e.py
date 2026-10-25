@@ -6,8 +6,8 @@ from typing import Self
 from PIL import Image
 from returns.result import Failure, Result, Success
 
-from eink.logging import logger
-from eink.vendor.epdconfig import (
+from rink.logging import logger
+from rink.vendor.epdconfig import (
     Pin,
     delay_ms,
     digital_read,

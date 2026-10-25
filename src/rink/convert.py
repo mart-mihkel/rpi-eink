@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, ClassVar, cast
 from PIL import Image
 from returns.result import safe
 
-from eink.logging import logger
+from rink.logging import logger
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

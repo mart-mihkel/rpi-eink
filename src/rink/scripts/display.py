@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING
 from PIL import Image
 from returns.result import safe
 
-from eink.convert import ImageConverter
-from eink.logging import logger
-from eink.vendor.epd7in3e import EPD
+from rink.convert import ImageConverter
+from rink.logging import logger
+from rink.vendor.epd7in3e import EPD
 
 if TYPE_CHECKING:
     from pathlib import Path

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import pytest
 from PIL import Image
 
-from eink.scripts.slideshow import (
+from rink.scripts.slideshow import (
     SUPPORTED_SUFFIXES,
     DirDaemonConfig,
     list_images,
@@ -144,7 +144,7 @@ def test_show_image_converts_non_bmp_in_memory(
     path = tmp_path / "photo.png"
     Image.new("RGB", (1600, 400), (255, 0, 0)).save(path)
     shown: list[Image.Image] = []
-    monkeypatch.setattr("eink.scripts.slideshow.display_image", shown.append)
+    monkeypatch.setattr("rink.scripts.slideshow.display_image", shown.append)
 
     show_image(path)
 
@@ -160,7 +160,7 @@ def test_show_image_passes_bmp_through(
     path = tmp_path / "panel.bmp"
     Image.new("RGB", (320, 240)).save(path)
     shown: list[Image.Image] = []
-    monkeypatch.setattr("eink.scripts.slideshow.display_image", shown.append)
+    monkeypatch.setattr("rink.scripts.slideshow.display_image", shown.append)
 
     show_image(path)
 

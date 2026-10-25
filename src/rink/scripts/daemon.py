@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING
 import httpx
 from returns.result import Success
 
-from eink.logging import logger
-lazy from eink.scripts.update import main as run_update
+from rink.logging import logger
+lazy from rink.scripts.update import main as run_update
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable

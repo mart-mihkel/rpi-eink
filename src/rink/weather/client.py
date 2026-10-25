@@ -2,9 +2,9 @@
 
 from httpx import AsyncClient
 
-from eink.logging import logger
-from eink.results import asafe
-from eink.weather.schemas import OpenMeteoQuery, WeatherResponse
+from rink.logging import logger
+from rink.results import asafe
+from rink.weather.schemas import OpenMeteoQuery, WeatherResponse
 
 
 class OpenMeteoClient:

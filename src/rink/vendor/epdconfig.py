@@ -53,7 +53,7 @@ else:
         sys.modules["spidev"] = _spidev_stub
         spidev = _spidev_stub  # type: ignore[no-redef]
 
-from eink.logging import logger
+from rink.logging import logger
 
 if TYPE_CHECKING:
     from collections.abc import Callable

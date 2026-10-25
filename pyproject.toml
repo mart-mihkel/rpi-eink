@@ -1,5 +1,5 @@
 [project]
-name = "eink"
+name = "rink"
 version = "0.1.0"
 description = "Raspberry 4 eInk dashboard"
 readme = "README.md"
@@ -35,7 +35,7 @@ rpi = [
 ]
 
 [project.scripts]
-rink = "eink.main:app"
+rink = "rink.main:app"
 
 [build-system]
 requires = ["uv_build~=0.13.0"]

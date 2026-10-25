@@ -9,7 +9,7 @@ from click import unstyle
 from click.testing import CliRunner
 from PIL import Image
 
-from eink.main import app
+from rink.main import app
 
 if TYPE_CHECKING:
     from pathlib import Path

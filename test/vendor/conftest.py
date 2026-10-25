@@ -8,7 +8,7 @@ import pytest
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 
-from eink.vendor import epdconfig
+from rink.vendor import epdconfig
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

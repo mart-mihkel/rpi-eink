@@ -4,7 +4,7 @@ import logging
 
 from rich.logging import RichHandler
 
-from eink.logging import logger, setup_logging
+from rink.logging import logger, setup_logging
 
 
 def test_setup_logging_is_idempotent() -> None:

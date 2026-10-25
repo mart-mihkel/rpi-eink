@@ -6,8 +6,8 @@ import httpx
 import pytest
 from returns.result import Failure, Result, Success
 
-from eink.results import asafe
-from eink.scripts.daemon import DaemonConfig, is_network_error, run_daemon
+from rink.results import asafe
+from rink.scripts.daemon import DaemonConfig, is_network_error, run_daemon
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
